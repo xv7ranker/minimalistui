@@ -427,18 +427,19 @@ EOF
 done
 
 while true; do
-    echo "message for dev: everything after line 320 should be tidied" # alot of install stuffs
-    echo "for extra downloadables, remove the "#" on line 1095 & 1096"
+    # alot of install stuffs
+    echo "for extra downloadables, remove the "#" on line 530 & 531."
     read -r -p "What username would you like to have? : " NEWUSER
     read -r -p "What hostname would you like to have? : " HOSTNAME
     read -r -p "Which GPU driver would you like to install?
-    - '1' to install AMD GPU Driver (Modern (xf86-video-amdgpu)) + Vulkan (vulkan-radeon) + Mesa (Depend.)
-    - '2' to install AMD GPU Driver (Old (xf86-video-ati)) + Mesa (Default)
-    - '3' to install Intel GPU Driver (xf86-video-intel) + Vulkan (vulkan-intel) + Mesa (Depend.) + Media Driver (Extra)
-          (Compatible w/ older non-vulkan igps)
-    - '4' to install NVIDIA GPU Driver (Proprietary (nvidia-dkms + nvidia-settings)) + Vulkan (Incl.) Mesa (Default)
-    - '5' to install NVIDIA GPU Driver (Open Source (xf86-video-nouveau)) + Mesa (Default) (No Vulkan (???))
-    - '6' to install Generic Fallback Driver (NOT RECOMENDED FOR NEWER SYSTEMS, USE AS FALLBACK ONLY) (xf86-video-vesa) + Mesa (Default)
+    - '1' to install AMD GPU Driver (Modern (xf86-video-amdgpu)) + Vulkan (vulkan-radeon) + Mesa (Depend.),
+    - '2' to install AMD GPU Driver (Old (xf86-video-ati)) + Mesa (Default),
+    - '3' to install Intel GPU Driver (xf86-video-intel) + Vulkan (vulkan-intel) + Mesa (Depend.) + Media Driver (Extra),
+          (Compatible w/ older non-vulkan igps),
+    - '4' to install NVIDIA GPU Driver (Proprietary (nvidia-dkms + nvidia-settings)) + Vulkan (Incl.) Mesa (Default),
+    - '5' to install NVIDIA GPU Driver (Open Source (xf86-video-nouveau)) + Mesa (Default) (No Vulkan (???)),
+    - '6' to install Generic Fallback Driver (NOT RECOMENDED FOR NEWER SYSTEMS, USE AS FALLBACK ONLY) (xf86-video-vesa) + Mesa (Default),
+    - '7' to install all GPU and CPU drivers.
     - answer: " GPUI
     if [ -n "$ESPDIR" ] && [ -n "$ROOTDIR" ] && [ -n "$NEWUSER" ] && [ -n "$GPUI" ]; then
         ROOT_UUID=$(blkid -s UUID -o value "$ROOTDIR")
@@ -458,6 +459,8 @@ while true; do
     4) GPU="nvidia-dkms nvidia-settings nvidia-utils" ;;
     5) GPU="xf86-video-nouveau" ;;
     6) GPU="xf86-video-vesa" ;;
+    7) GPU="xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon"
+        CPU="intel-ucode amd-ucode"
     esac
     mkdir /mnt
     mkdir /mnt/boot
