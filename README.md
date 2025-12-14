@@ -2,6 +2,7 @@
 based on Arch, inspired by EndeavourOS and archinstall command. A small Arch automatic install script project that installs and targets minimalist, simple, and light Dark-themed UI. This project is still WIP (tho predict 95% useable).
 
 How to install MinimalistUI (using .iso from https://github.com/xv7ranker/minimalistui-iso):
+
 1.) use:
 sudo dd if=/path/to/minimalistui.iso of=/dev/sdX bs=4M status=progress (for sata devices, change X to coresponding device letter (use lsblk to easily identify)
 or
