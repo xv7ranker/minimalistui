@@ -44,7 +44,7 @@ credit to:
 - Arch Linux,
 - EndeavourOS-team,
 - Linus Torvalds,
-- Toms Hardware (For BIOS/UEFI key combo page),
-- Lifewire (For boot priority/boot order modification)
+- Toms Hardware (For BIOS/UEFI key combo page (https://www.tomshardware.com/reviews/bios-keys-to-access-your-firmware,5732.html)),
+- Lifewire (For boot priority/boot order modification (https://www.lifewire.com/change-the-boot-order-in-bios-2624528)),
 - GEEKrar (For youtube rufus tutorial (https://www.youtube.com/@Geekrar), and
 - All of the package providers.
