@@ -527,8 +527,8 @@ while true; do
     chmod +x /home/"$NEWUSER"/.bash_profile
     bootctl install
     echo "Installing DE Packages & Some Extras."
-    pacman -S --noconfirm xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme networkmanager xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji adwaita-icon-theme w3m firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab git
-# pacman -S --noconfirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud  xfce4-whiskermenu-plugin
+    pacman -S --noconfirm xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme networkmanager xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji adwaita-icon-theme w3m firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab git thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman squashfs-tools genisoimage
+# pacman -S --noconfirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud vxfce4-whiskermenu-plugin
 # sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram
     git clone https://github.com/opranker/minimalistui-extras.git /home/"$NEWUSER"/gitclone
     cd /home/"$NEWUSER"/gitclone
