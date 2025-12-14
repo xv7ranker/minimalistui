@@ -8,11 +8,11 @@ sudo dd if=/path/to/minimalistui.iso of=/dev/sdX bs=4M status=progress (for sata
 
 or
 
-sudo dd if=/path/to/minimalistui.iso of=/dev/nvmeXn1 bs=4M status=progress (for nvme devices, change X to corresponding device no. (use lsblk to easily identify)
+sudo dd if=/path/to/minimalistui.iso of=/dev/nvmeXn1 bs=4M status=progress (for nvme devices, change X to corresponding device number (use lsblk to easily identify)
 
 OR
 
-sudo dd if=/path/to/minimalistui.iso of=/dev/mmcblkX bs=4M status=progress (for MicroSD devices, change X to corresponding device no. (use lsblk to easily identify)
+sudo dd if=/path/to/minimalistui.iso of=/dev/mmcblkX bs=4M status=progress (for MicroSD devices, change X to corresponding device number (use lsblk to easily identify)
 
 To paste .iso into your install media (if you are currently using Linux),
 
