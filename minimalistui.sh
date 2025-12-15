@@ -590,3 +590,4 @@ EOF
     continue
     fi
     done
+    reboot
