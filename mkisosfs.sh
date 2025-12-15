@@ -1,6 +1,5 @@
 #!/bin/bash
-echo "Shell Script (.sh) to automate .iso and .sfs creation" # by xv7ranker
-echo "Run the command in the same directory as the contents of the .iso or the .sfs for comfortability"
+echo "Shell Script (.sh) to automate .iso and .sfs creation" # echo "Make sure to run the command in the same directory as the contents of the .iso or the .sfs"
 while true; do
 read -r -p "What would you like to create?
 - '1' to create .iso,
@@ -10,10 +9,9 @@ read -r -p "What would you like to create?
 - answer: " W
 case $W in
 1)  read -r -p "What would you want your bootable .iso version be? (have not much effect): " V
-    read -r -p "What would you want your bootable .iso output file name be? (have not much effect): " I
+    read -r -p "What would you want your bootable .iso output file name be? (have not much effect) (do not add the file extension (.iso), its already added inside the script)): " I
     read -r -p "What would you want your bootable .iso preparer name be? (have not much effect): " R
     read -r -p "What would you want your bootable .iso publisher name be? (have not much effect): " B
-    while true; do
     read -r -p "Where is the directory to your .iso file contents? (leave empty if you are in the same directory as the contents, include the directory if the .iso file contents are not in the same directory as you are currently running the command in.): " S
     case $S in
     "") S="." ;;
@@ -31,7 +29,7 @@ case $W in
     esac
     done ;;
 2)  read -r -p "What would you want your bootable .iso version be? (have not much effect): " V
-    read -r -p "What would you want your bootable .iso and .sfs output file name be? (have not much effect): " I
+    read -r -p "What would you want your bootable .iso and .sfs output file name be? (have not much effect) (do not add the file extension (.iso and or .sfs), its already added inside the script)): " I
     read -r -p "What would you want your bootable .iso preparer name be? (have not much effect): " R
     read -r -p "What would you want your bootable .iso publisher name be? (have not much effect): " B
     EX=""
@@ -70,7 +68,7 @@ case $W in
     *) continue ;;
     esac
     done ;;
-3)  read -r -p "What would you want your .sfs output file name be? (have not much effect): " I
+3)  read -r -p "What would you want your .sfs output file name be? (have not much effect (do not add the file extension (.sfs), its already added inside the script)): " I
     EX=""
     while true; do
     read -r -p "Where is the directory to your .sfs file contents? (leave empty if you are in the same directory as the contents, include the directory if the .sfs file contents are not in the same directory as you are currently running the command in.): " S
