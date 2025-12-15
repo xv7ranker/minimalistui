@@ -428,9 +428,35 @@ done
 
 while true; do
     # alot of install stuffs
-    echo "for extra downloadables, remove the "#" on line 530 & 531."
+    read -r -p "Would you like to install extra packages (you can go to https://github.com/xv7ranker/minimalistui to see every packages (including extras))? 
+    - '1' install all extra packages,
+    - '2' install extra pacman packages,
+    - '3' install extra flatpak packages,
+    - '0' do not install extra packages.
+    - answer: " EXP
+    # pacman -S --noconfirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso
+# sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram
+    case $EXP in
+    1) EXPP="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso"
+        EXPF="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram" ;;
+    2) EXPP="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso"
+        EXPF="echo "skipping installing extra flatpak packages."" ;;
+    3) EXPP="echo "skipping installing extra pacman packages.""
+        EXPF="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram" ;;
+    0) EXPP="echo "skipping installing extra pacman packages.""
+        EXPF="echo "skipping installing extra flatpak packages."" ;;
+    "") continue ;;
+    esac
     read -r -p "What username would you like to have? : " NEWUSER
     read -r -p "What hostname would you like to have? : " HOSTNAME
+    VENDORID=$(grep 'vendor_id' /proc/cpuinfo | head -n 1 | awk '{print $NF}')
+    if [[ "$VENDORID" == "GenuineIntel" ]]; then
+        CPU="intel-ucode"
+        echo "CPU is Intel, installing $CPU"
+    elif [[ "$VENDORID" == "AuthenticAMD" ]]; then
+        CPU="amd-ucode"
+        echo "CPU is AMD, installing $CPU"
+    fi
     read -r -p "Which GPU driver would you like to install?
     - '1' to install AMD GPU Driver (Modern (xf86-video-amdgpu)) + Vulkan (vulkan-radeon) + Mesa (Depend.),
     - '2' to install AMD GPU Driver (Old (xf86-video-ati)) + Mesa (Default),
@@ -460,7 +486,7 @@ while true; do
     5) GPU="xf86-video-nouveau" ;;
     6) GPU="xf86-video-vesa" ;;
     7) GPU="xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon"
-        CPU="intel-ucode amd-ucode"
+        CPU="intel-ucode amd-ucode" ;;
     esac
     mkdir /mnt
     mkdir /mnt/boot
@@ -473,12 +499,6 @@ while true; do
         continue ;;
     "") continue ;;
     esac
-    VENDORID=$(grep 'vendor_id' /proc/cpuinfo | head -n 1 | awk '{print $NF}')
-    if [[ "$VENDORID" == "GenuineIntel" ]]; then
-        CPU="intel-ucode"
-    elif [[ "$VENDORID" == "AuthenticAMD" ]]; then
-        CPU="amd-ucode"
-    fi
     pacstrap -K /mnt base linux-zen linux-firmware xorg-server xorg-xinit polkit-gnome fontconfig networkmanager dhcpcd mesa libva mesa-vdpau libva-mesa-driver f2fs-tools nano bash fzf bat zoxide lf thefuck systemd yay ntfs-3g unzip p7zip unrar gufw ufw $GPU $CPU
     genfstab -U /mnt >> /mnt/etc/fstab
     fallocate -l 8G /swapfile
@@ -528,9 +548,9 @@ while true; do
     chmod +x /home/"$NEWUSER"/.bash_profile
     bootctl install
     echo "Installing DE Packages & Some Extras."
-    pacman -S --noconfirm xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme networkmanager xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji materia-gtk-theme w3m firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab git thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman squashfs-tools cdrtools xorriso
-# pacman -S --noconfirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin
-# sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram
+    pacman -S --noconfirm xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme networkmanager xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji materia-gtk-theme w3m firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab git thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman
+    $EXPP
+    $EXPF
     mv /minui /home/"$NEWUSER"/minui
     cd /home/"$NEWUSER"/minui
     chmod +x /home/"$NEWUSER"/minui/execute.sh
