@@ -465,7 +465,7 @@ while true; do
     - '4' to install NVIDIA GPU Driver (Proprietary (nvidia-dkms + nvidia-settings)) + Vulkan (Incl.) Mesa (Default),
     - '5' to install NVIDIA GPU Driver (Open Source (xf86-video-nouveau)) + Mesa (Default) (No Vulkan (???)),
     - '6' to install Generic Fallback Driver (NOT RECOMENDED FOR NEWER SYSTEMS, USE AS FALLBACK ONLY) (xf86-video-vesa) + Mesa (Default),
-    - '7' to install all GPU and CPU drivers.
+    - '7' to install all GPU Drivers (Incl. Mesa & Media Drivers) and CPU Microcodes (Overrides).
     - answer: " GPUI
     if [ -n "$ESPDIR" ] && [ -n "$ROOTDIR" ] && [ -n "$NEWUSER" ] && [ -n "$GPUI" ]; then
         ROOT_UUID=$(blkid -s UUID -o value "$ROOTDIR")
