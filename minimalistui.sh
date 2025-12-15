@@ -395,7 +395,7 @@ EOF
         unit: $U
         2 : size=$P, type=$T, name="ROOTDIR"
 EOF
-        ROOTDIR="${DD}2"
+        ROOTDIR="${D}2"
         read -r -p "Choose the format for Root Partition
         - '1' F2FS, recomended for ssds... supposedly,
         - '2' BTRFS, modern, feature-rich...,
@@ -430,6 +430,8 @@ EOF
             esac ;;
     esac
 done
+X="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso"
+Q="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram"
 while true; do
     # alot of install stuffs
     read -r -p "Would you like to install extra packages (you can go to https://github.com/xv7ranker/minimalistui to see every packages (including extras))?
@@ -441,12 +443,9 @@ while true; do
     # pacman -S --noconfirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso
 # sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram
     case $R in
-    1) X="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso"
-        Q="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram" ;;
-    2) X="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso"
-        Q="echo "skipping installing extra flatpak packages."" ;;
-    3) X="echo "skipping installing extra pacman packages.""
-        Q="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram" ;;
+    1) ;;
+    2) Q="echo "skipping installing extra flatpak packages."" ;;
+    3) X="echo "skipping installing extra pacman packages."" ;;
     0) X="echo "skipping installing extra pacman packages.""
         Q="echo "skipping installing extra flatpak packages."" ;;
     "") continue ;;
@@ -459,7 +458,7 @@ while true; do
         echo "CPU is Intel, installing $CPU"
     elif [[ "$VENDORID" == "AuthenticAMD" ]]; then
         CPU="amd-ucode"
-        echo "CPU is AMD, installing $CPU"
+        echo "CPU is AMD, installing $C"
     fi
     read -r -p "Which GPU driver would you like to install?
     - '1' to install AMD GPU Driver (Modern (xf86-video-amdgpu)) + Vulkan (vulkan-radeon) + Mesa (Depend.),
@@ -483,14 +482,14 @@ while true; do
     fi
     done
     case $R in
-    1) GPU="xf86-video-amdgpu vulkan-radeon" ;;
-    2) GPU="xf86-video-ati" ;;
-    3) GPU="xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver" ;;
-    4) GPU="nvidia-dkms nvidia-settings nvidia-utils" ;;
-    5) GPU="xf86-video-nouveau" ;;
-    6) GPU="xf86-video-vesa" ;;
-    7) GPU="xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon"
-        CPU="intel-ucode amd-ucode" ;;
+    1) G="xf86-video-amdgpu vulkan-radeon" ;;
+    2) G="xf86-video-ati" ;;
+    3) G="xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver" ;;
+    4) G="nvidia-dkms nvidia-settings nvidia-utils" ;;
+    5) G="xf86-video-nouveau" ;;
+    6) G="xf86-video-vesa" ;;
+    7) G="xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon"
+        C="intel-ucode amd-ucode" ;;
     esac
     mkdir /mnt
     mkdir /mnt/boot
@@ -503,7 +502,7 @@ while true; do
         continue ;;
     "") continue ;;
     esac
-    pacstrap -K /mnt base linux-zen linux-firmware xorg-server xorg-xinit polkit-gnome fontconfig networkmanager dhcpcd mesa libva mesa-vdpau libva-mesa-driver f2fs-tools nano bash fzf bat zoxide lf thefuck systemd yay ntfs-3g unzip p7zip unrar gufw ufw $GPU $CPU
+    pacstrap -K /mnt base linux-zen linux-firmware xorg-server xorg-xinit polkit-gnome fontconfig networkmanager dhcpcd mesa libva mesa-vdpau libva-mesa-driver f2fs-tools nano bash fzf bat zoxide lf thefuck systemd yay ntfs-3g unzip p7zip unrar gufw ufw $G $C
     genfstab -U /mnt >> /mnt/etc/fstab
     fallocate -l 8G /swapfile
     chmod 600 /swapfile
