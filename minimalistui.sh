@@ -1,46 +1,45 @@
 #!/bin/bash
-
 while true; do
 if [[ $EUID -ne 0 ]]; then # 1st stage, sudo
     echo "ERROR: Must run with sudo."
-    read -r -p "Rerun with sudo? (y/n): " SUDO
-    case $SUDO in
+    read -r -p "Rerun with sudo? (y/n): " R
+    case $R in
     yY) exec sudo "$0" "$@" ;;
     "") continue ;;
     *) echo "Exiting."
        exit 1 ;;
     esac
+else
+    break
 fi
 done
-
-read -r -p "Do you want to change console keyboard layout and font? (y/n): " CHANGEFONT
-
-while true; do # console font & keyboard layout setting stage
-case $CHANGEFONT in
+read -r -p "Do you want to change console keyboard layout and font? (y/n): " R # 2nd stage, console font & keyboard layout settings
+while true; do
+case $R in
 yY) read -r -p "Change your keyboard layout to:
 - '1' to see all options,
 - 'us' to set keyboard layout to US (Default),
 - 'de-latin1' to set keyboard layout to German.
--  answer: " KEYBOARD
-    case $KEYBOARD in
+-  answer: " KB
+    case $KB in
     1) localectl list-keymaps > keymaps.txt
         echo "Use 'q' button to Quit." >> keymaps.txt
         less keymaps.txt
         continue ;;
     "") continue ;;
-    *) if localectl list-keymaps | grep -q "^$KEYBOARD$"; then
-        loadkeys $KEYBOARD
+    *) if localectl list-keymaps | grep -q "^$KB$"; then
+        loadkeys $KB
         rm -rf keymaps.txt
         break
         else
-        echo "Keyboard layout "$KEYBOARD" not found, try again."
+        echo "Keyboard layout "$KB" not found, try again."
         continue ;;
     esac
     read -r -p "Change your console font to:
     - '1' see all options,
     - 'ter-132b' for HiDPI screens (arch installation guide recomendation).
-    -  answer: " CONSOLEFONT
-        case $CONSOLEFONT in
+    -  answer: " CF
+        case $CF in
         1) ls /usr/share/kbd/consolefonts > fonts.txt
             echo "When changing font, add the format of the font you want to change to, like if you want to change to
             iso01.08, you should write iso01.08.gz." >> fonts.txt
@@ -48,13 +47,13 @@ yY) read -r -p "Change your keyboard layout to:
             echo "Use 'q' button to Quit." >> fonts.txt
             less fonts.txt
             continue ;;
-        *) FONT_BASE_PATH="/usr/share/kbd/consolefonts/$RESPONSE"
+        *) FONT_BASE_PATH="/usr/share/kbd/consolefonts/$CF"
             if [ -f "$FONT_BASE_PATH" ] || [ -f "$FONT_BASE_PATH.psf.gz" ] || [ -f "$FONT_BASE_PATH.psf" ]; then
-                setfont $RESPONSE
+                setfont $CF
                 rm -rf fonts.txt
                 break
             else
-                echo "ERROR: Console font '$CONSOLEFONT' not found, try again."
+                echo "ERROR: Console font '$CF' not found, try again."
                 continue
             fi ;;
         "") continue ;;
@@ -64,15 +63,13 @@ nN) echo "Not Changing Keyboard Layout (Default: US) and Console Font."
 "") continue ;;
 esac
 done
-
-
-while true; do # networking setting stage
+while true; do # 3rd stage, networking settings
     read -r -p "Networking:
     - '1' use ethernet,
     - '2' use wifi (complicated setup tbh),
     - '3' use wwan (WIP(???)).
-    -  answer: " NETWORKING
-case $NETWORKING in
+    -  answer: " R
+case $R in
     "") continue ;;
     dD) echo "Skipping connection."
         echo "Debugging Purpose Only."
@@ -102,8 +99,8 @@ case $NETWORKING in
         - '4' see all connectable connections / wifis (wlan0),
         - '5' enter your own command (input nothing to return here),
         - 'f' finish (skip, can be used after using option 5).
-        -  answer: " WIFI
-        case $WIFI in
+        -  answer: " W
+        case $W in
             1) iwctl help > iwctl.txt
                 echo "Use 'q' button to Quit." >> fonts.txt
                 echo "press 'y' to read iwctl.txt"
@@ -111,17 +108,17 @@ case $NETWORKING in
                 rm -rf iwctl.txt
                 continue ;;
             2) read -r -p "usage: iwctl station wlan0 connect <network name> <security protocol>
-                iwctl station wlan0 connect " RESPONSE
-                iwctl station wlan0 connect $RESPONSE
+                iwctl station wlan0 connect " R
+                iwctl station wlan0 connect $R
                 break ;;
             3) read -r -p "usage: iwctl station wlan0 connect-hidden <hidden network name>
-                iwctl station wlan0 connect-hidden " RESPONSE
-                iwctl station wlan0 connect-hidden $RESPONSE
+                iwctl station wlan0 connect-hidden " R
+                iwctl station wlan0 connect-hidden $R
                 break ;;
             4) iwctl station wlan0 get-networks
                 break ;;
-            5) read -r -p "iwctl " RESPONSE
-                iwctl $RESPONSE
+            5) read -r -p "iwctl " R
+                iwctl $R
                 continue ;;
             "") continue ;;
             fF) break ;;
@@ -137,23 +134,21 @@ case $NETWORKING in
         fi ;;
 esac
 done
-
 while true; do # timezone setting stage
-read -r -p "'1' to list timezones, and type the timezones to set the timezone (Area/Location (e.g. Asia/Jakarta)): " TIMEZONE
-    case $TIMEZONE in
+read -r -p "'1' to list timezones, and type the timezones to set the timezone (Area/Location (e.g. Asia/Jakarta)): " T
+    case $T in
     1) timedatectl list-timezones > timezones.txt
         echo "Use 'q' button to Quit." >> timezones.txt
         less timezones.txt
         rm -rf timezones.txt
         continue ;;
-    *) timedatectl set-timezones $TIMEZONE
+    *) timedatectl set-timezones $T
         break ;;
     "") continue ;;
     esac
 echo "Current date & time:"
 timedatectl
 done
-
 while true; do # partition creation stage
 read -r -p "fdisk:
     - '1' see all options,
@@ -164,10 +159,10 @@ read -r -p "fdisk:
     - '4' create ESP (GPT, part. no. 1),
     - '5' create Boot Partition (MBR, part. no. 1),
     - '6' create Root Partition (GPT/MBR, part. no. 2),
-    - '7' create empty partition (DIY) (input nothing to return here),
+    - '7' create empty partition (DIY) (input nothing to return here) (WIP),
     - '8' finish (use after finished creating partitions).
-    -  answer: " FDISK
-    case $FDISK in
+    -  answer: " R
+    case $R in
     1) fdisk -h > fdisk.txt
         echo "Use 'q' button to Quit." >> fdisk.txt
         less fdisk.txt
@@ -193,8 +188,8 @@ read -r -p "fdisk:
         - '/dev/sdx' normally for sata devices x (change x with the right letter),
         - '/dev/nvmex' normally for nvme devices no. x (change x with the right number),
         - '/dev/mmcblkx' normally for microsd cards no. x (change x with the right number).
-        - answer: " DD
-        case $DD in
+        - answer: " D
+        case $D in
         1) lsblk > lsblk.txt
             echo "Use 'q' button to Quit." >> lsblk.txt
             less lsblk.txt
@@ -206,33 +201,33 @@ read -r -p "fdisk:
         - '1' use MiB,
         - '2' use GiB,
         - '3' use TiB.
-        - answer: " $DPS
-        case $DPS in
-        1) DDF="${DDSS}M"
-            DDS="MiB"
-            DDSU="M";;
-        2) DDF="${DDSS}G"
-            DDS="GiB"
-            DDSU="G";;
-        3) DDF="${DDSS}T"
-            DDS="TiB"
-            DDSU="T";;
+        - answer: " R
+        case $O in
+        1) P="${S}M"
+            B="MiB"
+            U="M";;
+        2) P="${S}G"
+            B="GiB"
+            U="G";;
+        3) P="${S}T"
+            B="TiB"
+            U="T";;
         esac
-        read -r -p "GPT (1) or MBR (2)" GPTMBR
-        case $GPTMBR in
-        1) TYPE="0FC63DAF-8483-4772-8E79-3D69D8477DE4"
-            LABEL="gpt" ;;
-        2) TYPE="83"
-            LABEL="dos";;
+        read -r -p "GPT (1) or MBR (2)" GM
+        case $GM in
+        1) T="0FC63DAF-8483-4772-8E79-3D69D8477DE4"
+            L="gpt" ;;
+        2) T="83"
+            L="dos";;
         esac
-        read -r -p "How much (in $DDS) would you like to allocate to your new partition?" $DDSS
-        read -r -p "What partition number would you give to your new partition?" PN
-        sudo sfdisk $DD --wipe-table --force --quiet <<EOF
-        label: $LABEL
-        unit: $DDSU
-        $PN : size=$DDF, type=$TYPE, name="DIR"
+        read -r -p "How much (in $B) would you like to allocate to your new partition?" S
+        read -r -p "What partition number would you give to your new partition?" N
+        sudo sfdisk $D --wipe-table --force --quiet <<EOF
+        label: $L
+        unit: $U
+        $N : size=$S, type=$T, name="DIR"
 EOF
-        DIR="${DD}$PN"
+        DD="${D}$N"
         read -r -p "Choose the format for your new partition
         - '1' F2FS, recomended for ssds... supposedly,
         - '2' BTRFS, modern, feature-rich...,
@@ -241,26 +236,26 @@ EOF
         - '5' for fat12.
         - '6' for fat16.
         - '7' for fat32
-        - answer: " FS
-        case $FS in
-        1) FORMAT="mkfs.f2fs" ;;
-        2) FORMAT="mkfs.btrfs" ;;
-        3) FORMAT="mkfs.xfs" ;;
-        4) FORMAT="mkfs.ext4" ;;
-        5) FORMAT="mkfs.fat -F 12" ;;
-        6) FORMAT="mkfs.fat -F 16" ;;
-        7) FORMAT="mkfs.fat -F 32" ;;
+        - answer: " F
+        case $F in
+        1) FM="mkfs.f2fs" ;;
+        2) FM="mkfs.btrfs" ;;
+        3) FM="mkfs.xfs" ;;
+        4) FM="mkfs.ext4" ;;
+        5) FM="mkfs.fat -F 12" ;;
+        6) FM="mkfs.fat -F 16" ;;
+        7) FM="mkfs.fat -F 32" ;;
         *) continue
         *) continue ;;
         esac
-        $FORMAT $DIR ;;
+        $FM $DD ;;
     4) read -r -p "Which device would you like to choose to create the partition on?
         - '1' see all options,
         - '/dev/sdx' normally for sata devices x (change x with the right letter),
         - '/dev/nvmex' normally for nvme devices no. x (change x with the right number),
         - '/dev/mmcblkx' normally for microsd cards no. x (change x with the right number).
-        - answer: " DD
-        case $DD in
+        - answer: " D
+        case $D in
         1) lsblk > lsblk.txt
             echo "Use 'q' button to Quit." >> lsblk.txt
             less lsblk.txt
@@ -272,47 +267,47 @@ EOF
         - '1' use MiB,
         - '2' use GiB,
         - '3' use TiB.
-        - answer: " $DPS
-        case $DPS in
-        1) DDF="${DDSS}M"
-            DDS="MiB"
-            DDSU="M";;
-        2) DDF="${DDSS}G"
-            DDS="GiB"
-            DDSU="G";;
-        3) DDF="${DDSS}T"
-            DDS="TiB"
-            DDSU="T";;
+        - answer: " R
+        case $R in
+        1) P="${S}M"
+            B="MiB"
+            U="M";;
+        2) P="${S}G"
+            B="GiB"
+            U="G";;
+        3) P="${S}T"
+            B="TiB"
+            U="T";;
         esac
-        read -r -p "How much (in $DDS) would you like to allocate to your new partition?" $DDSS
-        sudo sfdisk $DD --wipe-table --force --quiet <<EOF
+        read -r -p "How much (in $B) would you like to allocate to your new partition?" S
+        sudo sfdisk $D --wipe-table --force --quiet <<EOF
         label: gpt
-        unit: $DDSU
-        1 : size=$DDF, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, name="ESPDIR"
+        unit: $U
+        1 : size=$P, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, name="ESPDIR"
 EOF
-        ESPDIR="${DD}1"
+        ESPDIR="${D}1"
         echo "Choose the fat size for ESP (12, 16, and 32 (32 is Recomended)) and choose the partition"
         read -r -p "Which fat format would you like to use?
         - '1' for fat12.
         - '2' for fat16.
         - '3' for fat32
-        - answer: " FAT
-        case $FAT in
-        1) FATFORMAT= mkfs.fat -F 12 ;;
-        2) FATFORMAT= mkfs.fat -F 16 ;;
-        3) FATFORMAT= mkfs.fat -F 32 ;;
+        - answer: " R
+        case $R in
+        1) FM= mkfs.fat -F 12 ;;
+        2) FM= mkfs.fat -F 16 ;;
+        3) FM= mkfs.fat -F 32 ;;
         *) continue
         esac
         echo "creating ESP: $ESPDIR"
-        $FATFORMAT $ESPDIR
+        $FM $ESPDIR
         ;;
     5) read -r -p "Which device would you like to choose to create the partition on?
         - '1' see all options,
         - '/dev/sdx' normally for sata devices x (change x with the right letter),
         - '/dev/nvmex' normally for nvme devices no. x (change x with the right number),
         - '/dev/mmcblkx' normally for microsd cards no. x (change x with the right number).
-        - answer: " DD
-        case $DD in
+        - answer: " D
+        case $D in
         1) lsblk > lsblk.txt
             echo "Use 'q' button to Quit." >> lsblk.txt
             less lsblk.txt
@@ -324,46 +319,46 @@ EOF
         - '1' use MiB,
         - '2' use GiB,
         - '3' use TiB.
-        - answer: " $DPS
-        case $DPS in
-        1) DDF="${DDSS}M"
-            DDS="MiB"
-            DDSU="M";;
-        2) DDF="${DDSS}G"
-            DDS="GiB"
-            DDSU="G";;
-        3) DDF="${DDSS}T"
-            DDS="TiB"
-            DDSU="T";;
+        - answer: " R
+        case $R in
+        1) P="${S}M"
+            B="MiB"
+            U="M";;
+        2) P="${S}G"
+            B="GiB"
+            U="G";;
+        3) P="${S}T"
+            B="TiB"
+            U="T";;
         esac
-        read -r -p "How much (in $DDS) would you like to allocate to your new partition?" $DDSS
-        sudo sfdisk $DD --wipe-table --force --quiet <<EOF
+        read -r -p "How much (in $B) would you like to allocate to your new partition?" S
+        sudo sfdisk $D --wipe-table --force --quiet <<EOF
         label: dos
-        unit: $DDSU
-        1 : size=$DDF, type=83, name="BOOTDIR"
+        unit: $U
+        1 : size=$P, type=83, name="BOOTDIR"
 EOF
-        ESPDIR="${DD}2"
+        ESPDIR="${D}2"
         read -r -p "Choose the format for Boot Partition
         - '1' F2FS, recomended for ssds... supposedly,
         - '2' BTRFS, modern, feature-rich...,
         - '3' XFS, recomended for big files... supposedly,
         - '4' EXT4, classic...
-        - answer: " ROOT
-        case $ROOT in
-        1) ROOTFORMAT="mkfs.f2fs" ;;
-        2) ROOTFORMAT="mkfs.btrfs" ;;
-        3) ROOTFORMAT="mkfs.xfs" ;;
-        4) ROOTFORMAT="mkfs.ext4" ;;
+        - answer: " FS
+        case $FS in
+        1) FM="mkfs.f2fs" ;;
+        2) FM="mkfs.btrfs" ;;
+        3) FM="mkfs.xfs" ;;
+        4) FM="mkfs.ext4" ;;
         *) continue ;;
         esac
-        $ROOTFORMAT $ROOTDIR ;;
+        $FM $ESPDIR ;;
     6) read -r -p "Which device would you like to choose to create the partition on?
         - '1' see all options,
         - '/dev/sdx' normally for sata devices x (change x with the right letter),
         - '/dev/nvmex' normally for nvme devices no. x (change x with the right number),
         - '/dev/mmcblkx' normally for microsd cards no. x (change x with the right number).
-        - answer: " DD
-        case $DD in
+        - answer: " D
+        case $D in
         1) lsblk > lsblk.txt
             echo "Use 'q' button to Quit." >> lsblk.txt
             less lsblk.txt
@@ -375,30 +370,30 @@ EOF
         - '1' use MiB,
         - '2' use GiB,
         - '3' use TiB.
-        - answer: " $DPS
-        case $DPS in
-        1) DDF="${DDSS}M"
-            DDS="MiB"
-            DDSU="M";;
-        2) DDF="${DDSS}G"
-            DDS="GiB"
-            DDSU="G";;
-        3) DDF="${DDSS}T"
-            DDS="TiB"
-            DDSU="T";;
+        - answer: " R
+        case $R in
+        1) P="${S}M"
+            B="MiB"
+            U="M";;
+        2) P="${S}G"
+            B="GiB"
+            U="G";;
+        3) P="${S}T"
+            B="TiB"
+            U="T";;
         esac
-        read -r -p "GPT (1) or MBR (2)" GPTMBR
-        case $GPTMBR in
-        1) TYPE="0FC63DAF-8483-4772-8E79-3D69D8477DE4"
-            LABEL="gpt" ;;
-        2) TYPE="83"
-            LABEL="dos";;
+        read -r -p "GPT (1) or MBR (2)" GM
+        case $GM in
+        1) T="0FC63DAF-8483-4772-8E79-3D69D8477DE4"
+            L="gpt" ;;
+        2) T="83"
+            L="dos";;
         esac
-        read -r -p "How much (in $DDS) would you like to allocate to your new partition?" $DDSS
+        read -r -p "How much (in $B) would you like to allocate to your new partition?" S
         sudo sfdisk $DD --wipe-table --force --quiet <<EOF
-        label: $LABEL
-        unit: $DDSU
-        2 : size=$DDF, type=$TYPE, name="ROOTDIR"
+        label: $L
+        unit: $U
+        2 : size=$P, type=$T, name="ROOTDIR"
 EOF
         ROOTDIR="${DD}2"
         read -r -p "Choose the format for Root Partition
@@ -406,45 +401,54 @@ EOF
         - '2' BTRFS, modern, feature-rich...,
         - '3' XFS, recomended for big files... supposedly,
         - '4' EXT4, classic...
-        - answer: " ROOT
-        case $ROOT in
-        1) ROOTFORMAT="mkfs.f2fs" ;;
-        2) ROOTFORMAT="mkfs.btrfs" ;;
-        3) ROOTFORMAT="mkfs.xfs" ;;
-        4) ROOTFORMAT="mkfs.ext4" ;;
+        - answer: " FS
+        case $FS in
+        1) FM="mkfs.f2fs" ;;
+        2) FM="mkfs.btrfs" ;;
+        3) FM="mkfs.xfs" ;;
+        4) FM="mkfs.ext4" ;;
         *) continue ;;
         esac
-        $ROOTFORMAT $ROOTDIR ;;
+        $FM $ROOTDIR ;;
     7) read -r -p " usage: fdisk <device>
-            fdisk " DIYFDISK
-            case $DIYFDISK in
+            fdisk " R
+            case $R in
             "") continue ;;
-            *) fdisk $DIYFDISK
+            *) fdisk $R
                 continue ;;
             esac ;;
-    8) break ;;
+    8) if [ -z "$ROOTDIR" ]; then
+            read -r -p "Enter the full path for the ROOT partition (e.g., /dev/sda2): " ROOTDIR
+        fi
+        if [ -z "$ESPDIR" ]; then
+            read -r -p "Enter the full path for the ESP/BOOT partition (e.g., /dev/sda1): " ESPDIR
+        fi
+        read -r -p "Are these paths correct? (y/n): " R
+            case $R in
+            [yY]*) break ;;
+            *) continue ;; # Re-enter partition stage
+            esac ;;
     esac
 done
-
 while true; do
     # alot of install stuffs
-    read -r -p "Would you like to install extra packages (you can go to https://github.com/xv7ranker/minimalistui to see every packages (including extras))? 
+    read -r -p "Would you like to install extra packages (you can go to https://github.com/xv7ranker/minimalistui to see every packages (including extras))?
     - '1' install all extra packages,
     - '2' install extra pacman packages,
     - '3' install extra flatpak packages,
     - '0' do not install extra packages.
-    - answer: " EXP
+    - answer: " R
     # pacman -S --noconfirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso
 # sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram
-    case $EXP in
-    1) EXPP="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso"
-        EXPF="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram" ;;
-    2) EXPP="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso"
-        EXPF="echo "skipping installing extra flatpak packages."" ;;
-    3) EXPP="echo "skipping installing extra pacman packages.""
-        EXPF="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram" ;;
-    0) EXPP="echo "skipping installing extra pacman packages.""
-        EXPF="echo "skipping installing extra flatpak packages."" ;;
+    case $R in
+    1) X="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso"
+        Q="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram" ;;
+    2) X="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso"
+        Q="echo "skipping installing extra flatpak packages."" ;;
+    3) X="echo "skipping installing extra pacman packages.""
+        Q="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram" ;;
+    0) X="echo "skipping installing extra pacman packages.""
+        Q="echo "skipping installing extra flatpak packages."" ;;
     "") continue ;;
     esac
     read -r -p "What username would you like to have? : " NEWUSER
@@ -466,8 +470,8 @@ while true; do
     - '5' to install NVIDIA GPU Driver (Open Source (xf86-video-nouveau)) + Mesa (Default) (No Vulkan (???)),
     - '6' to install Generic Fallback Driver (NOT RECOMENDED FOR NEWER SYSTEMS, USE AS FALLBACK ONLY) (xf86-video-vesa) + Mesa (Default),
     - '7' to install all GPU Drivers (Incl. Mesa & Media Drivers) and CPU Microcodes (Overrides).
-    - answer: " GPUI
-    if [ -n "$ESPDIR" ] && [ -n "$ROOTDIR" ] && [ -n "$NEWUSER" ] && [ -n "$GPUI" ]; then
+    - answer: " R
+    if [ -n "$ESPDIR" ] && [ -n "$ROOTDIR" ] && [ -n "$NEWUSER" ] && [ -n "$R" ]; then
         ROOT_UUID=$(blkid -s UUID -o value "$ROOTDIR")
         if [ -z "$ROOT_UUID" ]; then
             echo "ERROR: Could not find UUID for Root Directory ($ROOTDIR). Check disk path."
@@ -478,7 +482,7 @@ while true; do
         continue
     fi
     done
-    case $GPUI in
+    case $R in
     1) GPU="xf86-video-amdgpu vulkan-radeon" ;;
     2) GPU="xf86-video-ati" ;;
     3) GPU="xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver" ;;
@@ -492,8 +496,8 @@ while true; do
     mkdir /mnt/boot
     mount $ROOTDIR /mnt
     mount $ESPDIR /mnt/boot
-    read -r -p "What language would you like to set? ('1' to see all options) : " LOCALE
-    case $LOCALE in
+    read -r -p "What language would you like to set? ('1' to see all options) : " R
+    case $R in
     1) less /etc/locale.gen
         echo "delete '#' and add . between locale and charset"
         continue ;;
@@ -510,17 +514,17 @@ while true; do
     arch-chroot /mnt <<EOF
     ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
     hwclock --systohc
-    locale-gen $LOCALE
-    echo "LANG=$LOCALE
-    LC_ADDRESS=$LOCALE
-    LC_IDENTIFICATION=$LOCALE
-    LC_MEASUREMENT=$LOCALE
-    LC_MONETARY=$LOCALE
-    LC_NAME=$LOCALE
-    LC_NUMERIC=$LOCALE
-    LC_PAPER=$LOCALE
-    LC_TELEPHONE=$LOCALE
-    LC_TIME=$LOCALE" > /etc/locale.conf
+    locale-gen $R
+    echo "LANG=$R
+    LC_ADDRESS=$R
+    LC_IDENTIFICATION=$R
+    LC_MEASUREMENT=$R
+    LC_MONETARY=$R
+    LC_NAME=$R
+    LC_NUMERIC=$R
+    LC_PAPER=$R
+    LC_TELEPHONE=$R
+    LC_TIME=$R" > /etc/locale.conf
     echo "# modify the language to your option" >> /etc/locale.conf
     echo "# use ctrl+s to save and ctrl+x to exit after finishing modifying file" >> /etc/locale.conf
     nano /etc/locale.conf
@@ -539,8 +543,8 @@ while true; do
     echo 'if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then' >> /home/"$NEWUSER"/.bash_profile
     echo '    exec startx' >> /home/"$NEWUSER"/.bash_profile
     echo 'fi' >> /home/"$NEWUSER"/.bash_profile
-    echo 'fastfetch' > /home/"$NEWUSER"/.bashrc
-    echo 'cpufetch' > /home/"$NEWUSER"/.bashrc
+    echo 'fastfetch' >> /home/"$NEWUSER"/.bashrc
+    echo 'cpufetch' >> /home/"$NEWUSER"/.bashrc
     mkdir /home/"$NEWUSER"/media
     ln -sf /run/"$NEWUSER" /home/"$NEWUSER"/media
     chown -R "$NEWUSER":"$NEWUSER" /home/"$NEWUSER"
@@ -549,8 +553,8 @@ while true; do
     bootctl install
     echo "Installing DE Packages & Some Extras."
     pacman -S --noconfirm xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme networkmanager xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji materia-gtk-theme w3m firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab git thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman
-    $EXPP
-    $EXPF
+    $X
+    $Q
     mv /minui /home/"$NEWUSER"/minui
     cd /home/"$NEWUSER"/minui
     chmod +x /home/"$NEWUSER"/minui/execute.sh
@@ -578,8 +582,8 @@ while true; do
     ufw default allow outgoing
 EOF
     while true; do
-    read -r -p "minimalistui finished installing, enter '1' to exit (make sure to unplug the installation media too after this)" EXITRESPONSE
-    if [[ "$EXITRESPONSE" =~ ^[1]$ ]]; then
+    read -r -p "minimalistui finished installing, enter '1' to exit (make sure to unplug the installation media too after this)" R
+    if [[ "$R" =~ ^[1]$ ]]; then
     umount -R /mnt
     exit
     break
