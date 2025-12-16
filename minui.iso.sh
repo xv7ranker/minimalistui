@@ -64,7 +64,7 @@ is_fs_larger_than_gib() {
     cd $Z $DV
     unsquashfs -f -d $L $S $DV
     RC=""
-    RM=""
+    RM="
     rm -rf $L/mkisosfs.sh $DV 
     rm -rf $L/minui.iso.sh $DV"
     read -r -p "Would you like to create 'Creator Edition' (-ce) .iso? (1 for yes, 0 for no (default: no))" Y
