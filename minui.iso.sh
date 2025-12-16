@@ -52,6 +52,7 @@ is_fs_larger_than_gib() {
     case $FC in
     1) DV="> /dev/null" ;;
     *) ;;
+    esac
     echo "Initiating minui.iso creation process." #3rd stage, start
     echo "Mounting arch.iso"
     echo "Mounting $M as arch.iso in directory /mnt/iso"
