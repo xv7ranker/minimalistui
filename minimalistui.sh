@@ -554,11 +554,10 @@ while true; do
     pacman -S --noconfirm xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme networkmanager xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji materia-gtk-theme w3m firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab git thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman
     $X
     $Q
-    mv /minui /home/"$NEWUSER"/minui
-    cd /home/"$NEWUSER"/minui
-    chmod +x /home/"$NEWUSER"/minui/execute.sh
+    cd /minui
+    chmod +x /minui/execute.sh
     sh execute.sh
-    rm -rf /home/"$NEWUSER"/minui
+    rm -rf /minui
     sudo -u "$NEWUSER" xfconf-query -c xsettings -p /Net/ThemeName -s "Materia-dark-compact" --create -t string
     sudo -u "$NEWUSER" xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus-Dark" --create -t string
     KVANTUM_CONFIG_PATH="/home/$NEWUSER/.config/Kvantum"
