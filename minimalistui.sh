@@ -4,7 +4,7 @@ if [[ $EUID -ne 0 ]]; then # 1st stage, sudo
     echo "ERROR: Must run with sudo."
     read -r -p "Rerun with sudo? (y/n): " R
     case $R in
-    yY) exec sudo "$0" "$@" ;;
+    [yY]) exec sudo "$0" "$@" ;;
     "") continue ;;
     *) echo "Exiting."
        exit 1 ;;
@@ -16,7 +16,7 @@ done
 read -r -p "Do you want to change console keyboard layout and font? (y/n): " R # 2nd stage, console font & keyboard layout settings
 while true; do
 case $R in
-yY) read -r -p "Change your keyboard layout to:
+[yY]) read -r -p "Change your keyboard layout to:
 - '1' to see all options,
 - 'us' to set keyboard layout to US (Default),
 - 'de-latin1' to set keyboard layout to German.
@@ -58,7 +58,7 @@ yY) read -r -p "Change your keyboard layout to:
             fi ;;
         "") continue ;;
         esac ;;
-nN) echo "Not Changing Keyboard Layout (Default: US) and Console Font."
+[nN]) echo "Not Changing Keyboard Layout (Default: US) and Console Font."
     break ;;
 "") continue ;;
 esac
@@ -71,7 +71,7 @@ while true; do # 3rd stage, networking settings
     -  answer: " R
 case $R in
     "") continue ;;
-    dD) echo "Skipping connection."
+    [dD]) echo "Skipping connection."
         echo "Debugging Purpose Only."
         break ;;
     1) echo "Trying to ping ping.archlinux.org"
@@ -454,10 +454,10 @@ while true; do
     read -r -p "What hostname would you like to have? : " HOSTNAME
     VENDORID=$(grep 'vendor_id' /proc/cpuinfo | head -n 1 | awk '{print $NF}')
     if [[ "$VENDORID" == "GenuineIntel" ]]; then
-        CPU="intel-ucode"
-        echo "CPU is Intel, installing $CPU"
+        C="intel-ucode"
+        echo "CPU is Intel, installing $C"
     elif [[ "$VENDORID" == "AuthenticAMD" ]]; then
-        CPU="amd-ucode"
+        C="amd-ucode"
         echo "CPU is AMD, installing $C"
     fi
     read -r -p "Which GPU driver would you like to install?
