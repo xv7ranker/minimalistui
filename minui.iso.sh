@@ -63,7 +63,7 @@ is_fs_larger_than_gib() {
     else
       echo "'minui' and minimalistui.sh is not spotted, using git clone to get both files"
       git clone https://github.com/xv7ranker/minimalistui-extras $G
-      git clone https://github.com/xv7ranker/minimalistui $C
+      git clone https://github.com/xv7ranker/minimalistui $L
       rm -rf $L/README.md
       rm -rf $L/LICENSE
       rm -rf $L/mkisosfs.sh
