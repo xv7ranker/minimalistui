@@ -5,28 +5,32 @@ U=$(basename "$T")
 Q=$(cat /etc/hostname)
 while true; do
 if [[ $EUID -ne 0 ]]; then # 1st stage, sudo
-    echo "[$P@$Q $U]# ERROR: Must run with sudo."
-    read -r -p "Rerun with sudo? (y/n): " R
+    echo "[$P@$Q $U]$ ERROR: Must run with sudo."
+    read -r -p "[$P@$Q $U]$ Rerun with sudo? (y/n): " R
     case $R in
     [yY]) exec sudo "$0" "$@" ;;
     "") continue ;;
-    *) echo "Exiting."
+    *) echo "[$P@$Q $U]#$ Exiting."
        exit 1 ;;
     esac
 else
     break
 fi
 done
+
+
 echo "[$P@$Q $U]# Shell Script (.sh) to install MinimalistUI."
 read -r -p "[$P@$Q $U]# Do you want to change console keyboard layout and font? (y/n): " R # 2nd stage, console font & keyboard layout settings
 while true; do
 case $R in
 [yY]) read -r -p "[$P@$Q $U]# Change your keyboard layout to:
+- '0' to skip,
 - '1' to see all options,
 - 'us' to set keyboard layout to US (Default),
 - 'de-latin1' to set keyboard layout to German.
 -  answer: " K
     case $K in
+    0) ;;
     1) localectl list-keymaps > keymaps.txt
         echo "Use 'q' button to Quit." >> keymaps.txt
         less keymaps.txt
@@ -41,10 +45,12 @@ case $R in
         continue ;;
     esac
     read -r -p "[$P@$Q $U]# Change your console font to:
+    - '0' skip,
     - '1' see all options,
     - 'ter-132b' for HiDPI screens (arch installation guide recomendation).
     -  answer: " C
         case $C in
+        0) break ;;
         1) ls /usr/share/kbd/consolefonts > fonts.txt
             echo "When changing font, add the format of the font you want to change to, like if you want to change to
             iso01.08, you should write iso01.08.gz." >> fonts.txt
@@ -68,10 +74,12 @@ case $R in
 "") continue ;;
 esac
 done
+
+
 while true; do # 3rd stage, networking settings
     read -r -p "[$P@$Q $U]# Networking:
     - '1' use ethernet,
-    - '2' use wifi (complicated setup tbh),
+    - '2' use wifi (Heavily WIP.),
     - '3' use wwan (WIP(???)).
     -  answer: " R
 case $R in
@@ -103,24 +111,28 @@ case $R in
         - '3' connect to hidden network / wifis (wlan0),
         - '4' see all connectable connections / wifis (wlan0),
         - '5' enter your own command (input nothing to return here),
-        - 'f' finish (skip, can be used after using option 5).
+        - 'f' finish (Used after preparing Wifi.).
         -  answer: " W
         case $W in
             1) iwctl help > iwctl.txt
-                echo "Use 'q' button to Quit." >> fonts.txt
+                echo "Use 'q' button to Quit." >> iwctl.txt
                 echo "[$P@$Q $U]# press 'y' to read iwctl.txt"
                 less iwctl.txt -F
                 rm -rf iwctl.txt
                 continue ;;
-            2) read -r -p "[$P@$Q $U]# usage: iwctl station wlan0 connect <network name> <security protocol>
+            2) read -r -p "usage: iwctl station wlan0 connect <network name> <security protocol>
                 iwctl station wlan0 connect " R
                 iwctl station wlan0 connect $R
                 break ;;
-            3) read -r -p "[$P@$Q $U]# usage: iwctl station wlan0 connect-hidden <hidden network name>
+            3) read -r -p "usage: iwctl station wlan0 connect-hidden <hidden network name>
                 iwctl station wlan0 connect-hidden " R
                 iwctl station wlan0 connect-hidden $R
                 break ;;
-            4) iwctl station wlan0 get-networks
+            4) iwctl station wlan0 get-networks > iwctl.txt
+                echo "Use 'q' button to Quit." >> iwctl.txt
+                echo "[$P@$Q $U]# press 'y' to read iwctl.txt"
+                less iwctl.txt -F
+                rm -rf iwctl.txt
                 break ;;
             5) read -r -p "iwctl " R
                 iwctl $R
@@ -139,6 +151,8 @@ case $R in
         fi ;;
 esac
 done
+
+
 while true; do # timezone setting stage
 read -r -p "[$P@$Q $U]# '1' to list timezones, and type the timezones to set the timezone (Area/Location (e.g. Asia/Jakarta)): " T
     case $T in
@@ -154,6 +168,8 @@ read -r -p "[$P@$Q $U]# '1' to list timezones, and type the timezones to set the
 echo "[$P@$Q $U]# Current date & time:"
 timedatectl
 done
+
+
 while true; do # partition creation stage
 read -r -p "[$P@$Q $U]# fdisk:
     - '1' see all options,
@@ -169,22 +185,22 @@ read -r -p "[$P@$Q $U]# fdisk:
     -  answer: " R
     case $R in
     1) fdisk -h > fdisk.txt
-        echo "[$P@$Q $U]# Use 'q' button to Quit." >> fdisk.txt
+        echo "Use 'q' button to Quit." >> fdisk.txt
         less fdisk.txt
         rm -rf fdisk.txt
         continue ;;
     2) fdisk -l > fdisk.txt
-        echo "[$P@$Q $U]# Use 'q' button to Quit." >> fdisk.txt
+        echo "Use 'q' button to Quit." >> fdisk.txt
         less fdisk.txt
         rm -rf fdisk.txt
         continue ;;
     [2][bB]) blkid > blkid.txt
-            echo "[$P@$Q $U]# Use 'q' button to Quit." >> blkid.txt
+            echo "Use 'q' button to Quit." >> blkid.txt
             less blkid.txt
             rm -rf blkid.txt
             continue ;;
     [2][lL]) lsblk > lsblk.txt
-            echo "[$P@$Q $U]# Use 'q' button to Quit." >> lsblk.txt
+            echo "Use 'q' button to Quit." >> lsblk.txt
             less lsblk.txt
             rm -rf lsblk.txt
             continue ;;
@@ -196,7 +212,7 @@ read -r -p "[$P@$Q $U]# fdisk:
         - answer: " D
         case $D in
         1) lsblk > lsblk.txt
-            echo "[$P@$Q $U]# Use 'q' button to Quit." >> lsblk.txt
+            echo "Use 'q' button to Quit." >> lsblk.txt
             less lsblk.txt
             rm -rf lsblk.txt
             continue ;;
@@ -218,15 +234,15 @@ read -r -p "[$P@$Q $U]# fdisk:
             B="TiB"
             U="T";;
         esac
-        read -r -p "[$P@$Q $U]# GPT (1) or MBR (2)" R
+        read -r -p "GPT (1) or MBR (2)" R
         case $R in
         1) T="0FC63DAF-8483-4772-8E79-3D69D8477DE4"
             L="gpt" ;;
         2) T="83"
             L="dos";;
         esac
-        read -r -p "[$P@$Q $U]# How much (in $B) would you like to allocate to your new partition?" S
-        read -r -p "[$P@$Q $U]# What partition number would you give to your new partition?" N
+        read -r -p "How much (in $B) would you like to allocate to your new partition?" S
+        read -r -p "What partition number would you give to your new partition?" N
         sudo sfdisk $D --wipe-table --force --quiet <<EOF
         label: $L
         unit: $U
@@ -262,7 +278,7 @@ EOF
         - answer: " D
         case $D in
         1) lsblk > lsblk.txt
-            echo "[$P@$Q $U]# Use 'q' button to Quit." >> lsblk.txt
+            echo "Use 'q' button to Quit." >> lsblk.txt
             less lsblk.txt
             rm -rf lsblk.txt
             continue ;;
@@ -303,7 +319,7 @@ EOF
         3) FM= mkfs.fat -F 32 ;;
         *) continue
         esac
-        echo "creating ESP: $ESPDIR"
+        echo "[$P@$Q $U]# creating ESP: $ESPDIR"
         $FM $ESPDIR
         ;;
     5) read -r -p "[$P@$Q $U]# Which device would you like to choose to create the partition on?
@@ -314,7 +330,7 @@ EOF
         - answer: " D
         case $D in
         1) lsblk > lsblk.txt
-            echo "[$P@$Q $U]# Use 'q' button to Quit." >> lsblk.txt
+            echo "Use 'q' button to Quit." >> lsblk.txt
             less lsblk.txt
             rm -rf lsblk.txt
             continue ;;
@@ -365,7 +381,7 @@ EOF
         - answer: " D
         case $D in
         1) lsblk > lsblk.txt
-            echo "[$P@$Q $U]# Use 'q' button to Quit." >> lsblk.txt
+            echo "Use 'q' button to Quit." >> lsblk.txt
             less lsblk.txt
             rm -rf lsblk.txt
             continue ;;
@@ -415,7 +431,7 @@ EOF
         *) continue ;;
         esac
         $FM $ROOTDIR ;;
-    7) read -r -p "[$P@$Q $U]# usage: fdisk <device>
+    7) read -r -p " usage: fdisk <device>
             fdisk " R
             case $R in
             "") continue ;;
@@ -435,6 +451,7 @@ EOF
             esac ;;
     esac
 done
+
 
 while true; do
     # alot of install stuffs
@@ -459,10 +476,10 @@ while true; do
     VENDORID=$(grep 'vendor_id' /proc/cpuinfo | head -n 1 | awk '{print $NF}')
     if [[ "$VENDORID" == "GenuineIntel" ]]; then
         C="intel-ucode"
-        echo "CPU is Intel, installing $C"
+        echo "[$P@$Q $U]# CPU is Intel, installing $C"
     elif [[ "$VENDORID" == "AuthenticAMD" ]]; then
         C="amd-ucode"
-        echo "CPU is AMD, installing $C"
+        echo "[$P@$Q $U]# CPU is AMD, installing $C"
     fi
     read -r -p "[$P@$Q $U]# Which GPU driver would you like to install?
     - '1' to install AMD GPU Driver (Modern (xf86-video-amdgpu)) + Vulkan (vulkan-radeon) + Mesa (Depend.),
@@ -477,7 +494,7 @@ while true; do
     if [ -n "$ESPDIR" ] && [ -n "$ROOTDIR" ] && [ -n "$NEWUSER" ] && [ -n "$R" ]; then
         ROOT_UUID=$(blkid -s UUID -o value "$ROOTDIR")
         if [ -z "$ROOT_UUID" ]; then
-            echo "ERROR: Could not find UUID for Root Directory ($ROOTDIR). Check disk path."
+            echo "[$P@$Q $U]# ERROR: Could not find UUID for Root Directory ($ROOTDIR). Check disk path."
             continue
         fi
         break
@@ -501,8 +518,8 @@ while true; do
     mount $ESPDIR /mnt/boot
     read -r -p "[$P@$Q $U]# What language would you like to set? ('1' to see all options) : " R
     case $R in
-    1) less /etc/locale.gen
-        echo "delete '#' and add . between locale and charset" >> /etc/locale.gen
+    1) less /mnt/etc/locale.gen
+        echo "delete '#' and add . between locale and charset" >> /mnt/etc/locale.gen
         continue ;;
     "") continue ;;
     esac
@@ -514,7 +531,14 @@ while true; do
     swapon /swapfile
     echo "/swapfile none swap defaults 0 0" >> /etc/fstab
     mv /minui /mnt/minui
+    cp -r /var/lib/iwd/ /mnt/var/lib/iwd/
+    cp -r /etc/NetworkManager/system-connections/ /mnt/etc/NetworkManager/system-connections/
+    cp -r /etc/vconsole.conf /mnt/etc/vconsole.conf
     arch-chroot /mnt <<EOF
+    T=$(pwd)
+    P=$(whoami)
+    U=$(basename "$T")
+    Q=$(cat /etc/hostname)
     ln -sf /usr/share/zoneinfo/$T /etc/localtime
     hwclock --systohc
     locale-gen $R
@@ -533,10 +557,10 @@ while true; do
     nano /etc/locale.conf
     echo "KEYMAP=$K" >> /etc/vconsole.conf
     echo "$HOSTNAME" >> /etc/hostname
-    echo "Creating account"
+    echo "[$P@$Q $U]# Creating account"
     useradd -m -G wheel,audio,video,storage,power -s /bin/bash "$NEWUSER"
-    echo "You can modify root account password using command "passwd" while being root user or "sudo passwd" if you are using user account and you didnt know what your root account password is"
-    echo "Set your new user password"
+    echo "[$P@$Q $U]# You can modify root account password using command "passwd" while being root user or "sudo passwd" if you are using user account and you didnt know what your root account password is"
+    echo "[$P@$Q $U]# Set your new user password"
     passwd "$NEWUSER"
     echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/99_wheel_config
     echo '#!/bin/bash' > /home/"$NEWUSER"/.xinitrc
@@ -554,7 +578,7 @@ while true; do
     chmod +x /home/"$NEWUSER"/.xinitrc
     chmod +x /home/"$NEWUSER"/.bash_profile
     bootctl install
-    echo "Installing DE Packages & Some Extras."
+    echo "[$P@$Q $U]# Installing DE Packages & Some Extras."
     pacman -S --noconfirm xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji materia-gtk-theme firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us git thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman
     $X
     $Q
@@ -586,7 +610,7 @@ while true; do
     ufw default allow outgoing
 EOF
     while true; do
-    read -r -p "minimalistui finished installing, enter '1' to exit (make sure to unplug the installation media too after this)" R
+    read -r -p "[$P@$Q $U]# MinimalistUI finished installing, enter '1' to exit (make sure to unplug the installation media too after this)" R
     if [[ "$R" =~ ^[1]$ ]]; then
     umount -R /mnt
     exit
