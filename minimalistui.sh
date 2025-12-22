@@ -1,14 +1,4 @@
 #!/bin/bash
-C=""
-K=""
-R=""
-L=""
-U=""
-S=""
-T=""
-Q=""
-W=""
-X=""
 while true; do
 if [[ $EUID -ne 0 ]]; then # 1st stage, sudo
     echo "ERROR: Must run with sudo."
