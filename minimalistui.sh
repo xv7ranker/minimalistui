@@ -446,7 +446,7 @@ done
 while true; do
     # alot of install stuffs
     read -r -p "[$P@$Q $U]# What username would you like to have? : " NEWUSER
-    read -r -p "[$P@$Q $U]# What hostname would you like to have? : " HOSTNAME
+    read -r -p "[$P@$Q $U]# What hostname would you like to have? : " H
     X="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso"
     Q="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram"
     read -r -p "[$P@$Q $U]# Would you like to install extra packages (you can go to https://github.com/xv7ranker/minimalistui to see every packages (including extras))?
@@ -542,11 +542,7 @@ while true; do
     LC_PAPER=$R
     LC_TELEPHONE=$R
     LC_TIME=$R" > /etc/locale.conf
-    echo "# modify the language to your option" >> /etc/locale.conf
-    echo "# use ctrl+s to save and ctrl+x to exit after finishing modifying file" >> /etc/locale.conf
-    nano /etc/locale.conf
-    echo "KEYMAP=$K" >> /etc/vconsole.conf
-    echo "$HOSTNAME" >> /etc/hostname
+    echo "$H" >> /etc/hostname
     echo "[$P@$Q $U]# Creating account"
     useradd -m -G wheel,audio,video,storage,power -s /bin/bash "$NEWUSER"
     echo "[$P@$Q $U]# You can modify root account password using command "passwd" while being root user or "sudo passwd" if you are using user account and you didnt know what your root account password is"
