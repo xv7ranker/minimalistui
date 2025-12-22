@@ -1,4 +1,14 @@
 #!/bin/bash
+C=""
+K=""
+R=""
+L=""
+U=""
+S=""
+T=""
+Q=""
+W=""
+X=""
 while true; do
 if [[ $EUID -ne 0 ]]; then # 1st stage, sudo
     echo "ERROR: Must run with sudo."
@@ -13,6 +23,7 @@ else
     break
 fi
 done
+echo "[$P@$Q $U]# Shell Script (.sh) to install MinimalistUI."
 read -r -p "Do you want to change console keyboard layout and font? (y/n): " R # 2nd stage, console font & keyboard layout settings
 while true; do
 case $R in
@@ -20,26 +31,26 @@ case $R in
 - '1' to see all options,
 - 'us' to set keyboard layout to US (Default),
 - 'de-latin1' to set keyboard layout to German.
--  answer: " KB
-    case $KB in
+-  answer: " K
+    case $K in
     1) localectl list-keymaps > keymaps.txt
         echo "Use 'q' button to Quit." >> keymaps.txt
         less keymaps.txt
         continue ;;
     "") continue ;;
     *) if localectl list-keymaps | grep -q "^$KB$"; then
-        loadkeys $KB
+        loadkeys $K
         rm -rf keymaps.txt
         break
         else
-        echo "Keyboard layout "$KB" not found, try again."
+        echo "Keyboard layout "$K" not found, try again."
         continue ;;
     esac
     read -r -p "Change your console font to:
     - '1' see all options,
     - 'ter-132b' for HiDPI screens (arch installation guide recomendation).
-    -  answer: " CF
-        case $CF in
+    -  answer: " C
+        case $C in
         1) ls /usr/share/kbd/consolefonts > fonts.txt
             echo "When changing font, add the format of the font you want to change to, like if you want to change to
             iso01.08, you should write iso01.08.gz." >> fonts.txt
@@ -47,13 +58,13 @@ case $R in
             echo "Use 'q' button to Quit." >> fonts.txt
             less fonts.txt
             continue ;;
-        *) FONT_BASE_PATH="/usr/share/kbd/consolefonts/$CF"
+        *) FONT_BASE_PATH="/usr/share/kbd/consolefonts/$C"
             if [ -f "$FONT_BASE_PATH" ] || [ -f "$FONT_BASE_PATH.psf.gz" ] || [ -f "$FONT_BASE_PATH.psf" ]; then
-                setfont $CF
+                setfont $C
                 rm -rf fonts.txt
                 break
             else
-                echo "ERROR: Console font '$CF' not found, try again."
+                echo "ERROR: Console font '$C' not found, try again."
                 continue
             fi ;;
         "") continue ;;
@@ -213,8 +224,8 @@ read -r -p "fdisk:
             B="TiB"
             U="T";;
         esac
-        read -r -p "GPT (1) or MBR (2)" GM
-        case $GM in
+        read -r -p "GPT (1) or MBR (2)" R
+        case $R in
         1) T="0FC63DAF-8483-4772-8E79-3D69D8477DE4"
             L="gpt" ;;
         2) T="83"
@@ -236,8 +247,8 @@ EOF
         - '5' for fat12.
         - '6' for fat16.
         - '7' for fat32
-        - answer: " F
-        case $F in
+        - answer: " R
+        case $R in
         1) FM="mkfs.f2fs" ;;
         2) FM="mkfs.btrfs" ;;
         3) FM="mkfs.xfs" ;;
@@ -343,8 +354,8 @@ EOF
         - '2' BTRFS, modern, feature-rich...,
         - '3' XFS, recomended for big files... supposedly,
         - '4' EXT4, classic...
-        - answer: " FS
-        case $FS in
+        - answer: " R
+        case $R in
         1) FM="mkfs.f2fs" ;;
         2) FM="mkfs.btrfs" ;;
         3) FM="mkfs.xfs" ;;
@@ -382,8 +393,8 @@ EOF
             B="TiB"
             U="T";;
         esac
-        read -r -p "GPT (1) or MBR (2)" GM
-        case $GM in
+        read -r -p "GPT (1) or MBR (2)" R
+        case $R in
         1) T="0FC63DAF-8483-4772-8E79-3D69D8477DE4"
             L="gpt" ;;
         2) T="83"
@@ -401,8 +412,8 @@ EOF
         - '2' BTRFS, modern, feature-rich...,
         - '3' XFS, recomended for big files... supposedly,
         - '4' EXT4, classic...
-        - answer: " FS
-        case $FS in
+        - answer: " R
+        case $R in
         1) FM="mkfs.f2fs" ;;
         2) FM="mkfs.btrfs" ;;
         3) FM="mkfs.xfs" ;;
@@ -430,18 +441,19 @@ EOF
             esac ;;
     esac
 done
-X="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso"
-Q="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram"
+
 while true; do
     # alot of install stuffs
+    read -r -p "What username would you like to have? : " NEWUSER
+    read -r -p "What hostname would you like to have? : " HOSTNAME
+    X="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso"
+    Q="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram"
     read -r -p "Would you like to install extra packages (you can go to https://github.com/xv7ranker/minimalistui to see every packages (including extras))?
     - '1' install all extra packages,
     - '2' install extra pacman packages,
     - '3' install extra flatpak packages,
     - '0' do not install extra packages.
     - answer: " R
-    # pacman -S --noconfirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso
-# sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram
     case $R in
     1) ;;
     2) Q="echo "skipping installing extra flatpak packages."" ;;
@@ -450,8 +462,6 @@ while true; do
         Q="echo "skipping installing extra flatpak packages."" ;;
     "") continue ;;
     esac
-    read -r -p "What username would you like to have? : " NEWUSER
-    read -r -p "What hostname would you like to have? : " HOSTNAME
     VENDORID=$(grep 'vendor_id' /proc/cpuinfo | head -n 1 | awk '{print $NF}')
     if [[ "$VENDORID" == "GenuineIntel" ]]; then
         C="intel-ucode"
@@ -468,7 +478,7 @@ while true; do
     - '4' to install NVIDIA GPU Driver (Proprietary (nvidia-dkms + nvidia-settings)) + Vulkan (Incl.) Mesa (Default),
     - '5' to install NVIDIA GPU Driver (Open Source (xf86-video-nouveau)) + Mesa (Default) (No Vulkan (???)),
     - '6' to install Generic Fallback Driver (NOT RECOMENDED FOR NEWER SYSTEMS, USE AS FALLBACK ONLY) (xf86-video-vesa) + Mesa (Default),
-    - '7' to install all GPU Drivers (Incl. Mesa & Media Drivers) and CPU Microcodes (Overrides).
+    - '7' to install ALL GPU Drivers (Incl. Mesa & Media Drivers) & CPU Microcodes (Overrides) (Commonly heavier).
     - answer: " R
     if [ -n "$ESPDIR" ] && [ -n "$ROOTDIR" ] && [ -n "$NEWUSER" ] && [ -n "$R" ]; then
         ROOT_UUID=$(blkid -s UUID -o value "$ROOTDIR")
@@ -502,7 +512,7 @@ while true; do
         continue ;;
     "") continue ;;
     esac
-    pacstrap -K /mnt base linux-zen linux-firmware xorg-server xorg-xinit polkit-gnome fontconfig networkmanager dhcpcd mesa libva mesa-vdpau libva-mesa-driver f2fs-tools nano bash fzf bat zoxide lf thefuck systemd yay ntfs-3g unzip p7zip unrar gufw ufw $G $C
+    pacstrap -K /mnt base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs fzf bat zoxide lf thefuck ntfs-3g unzip p7zip unrar gufw ufw  neovim squashfs-tools $G $C
     genfstab -U /mnt >> /mnt/etc/fstab
     fallocate -l 8G /swapfile
     chmod 600 /swapfile
@@ -511,7 +521,7 @@ while true; do
     echo "/swapfile none swap defaults 0 0" >> /etc/fstab
     mv /minui /mnt/minui
     arch-chroot /mnt <<EOF
-    ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+    ln -sf /usr/share/zoneinfo/$T /etc/localtime
     hwclock --systohc
     locale-gen $R
     echo "LANG=$R
@@ -527,7 +537,7 @@ while true; do
     echo "# modify the language to your option" >> /etc/locale.conf
     echo "# use ctrl+s to save and ctrl+x to exit after finishing modifying file" >> /etc/locale.conf
     nano /etc/locale.conf
-    echo "KEYMAP=$KEYBOARD" >> /etc/vconsole.conf
+    echo "KEYMAP=$K" >> /etc/vconsole.conf
     echo "$HOSTNAME" >> /etc/hostname
     echo "Creating account"
     useradd -m -G wheel,audio,video,storage,power -s /bin/bash "$NEWUSER"
@@ -551,9 +561,12 @@ while true; do
     chmod +x /home/"$NEWUSER"/.bash_profile
     bootctl install
     echo "Installing DE Packages & Some Extras."
-    pacman -S --noconfirm xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme networkmanager xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji materia-gtk-theme w3m firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab git thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman
+    pacman -S --noconfirm xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji materia-gtk-theme firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us git thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman
     $X
     $Q
+    git clone [https://aur.archlinux.org/yay.git](https://aur.archlinux.org/yay.git)
+    cd yay
+    makepkg -si
     cd /minui
     chmod +x /minui/execute.sh
     sh execute.sh
@@ -568,7 +581,6 @@ while true; do
     echo "export QT_QPA_PLATFORMTHEME=kvantum" | sudo -u "$NEWUSER" tee -a /home/"$NEWUSER"/.profile > /dev/null
     sudo -u "$NEWUSER" xfconf-query -c xsettings -p /Gtk/FontName -s "Noto Sans Regular 10" --create -t string
     sudo -u "$NEWUSER" xfconf-query -c xfce4-panel -p /panels/panel-1/hidden -s true --create -t bool
-    mkdir -m 0777 /home/"$NEWUSER"/gitclone
     systemctl enable NetworkManager.service
     systemctl enable fstrim.timer
     systemctl enable systemd-timesyncd.service
