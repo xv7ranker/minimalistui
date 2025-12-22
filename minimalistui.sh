@@ -17,8 +17,6 @@ else
     break
 fi
 done
-
-
 echo "[$P@$Q $U]# Shell Script (.sh) to install MinimalistUI."
 read -r -p "[$P@$Q $U]# Do you want to change console keyboard layout and font? (y/n): " R # 2nd stage, console font & keyboard layout settings
 while true; do
@@ -74,8 +72,6 @@ case $R in
 "") continue ;;
 esac
 done
-
-
 while true; do # 3rd stage, networking settings
     read -r -p "[$P@$Q $U]# Networking:
     - '1' use ethernet,
@@ -151,8 +147,6 @@ case $R in
         fi ;;
 esac
 done
-
-
 while true; do # timezone setting stage
 read -r -p "[$P@$Q $U]# '1' to list timezones, and type the timezones to set the timezone (Area/Location (e.g. Asia/Jakarta)): " T
     case $T in
@@ -168,8 +162,6 @@ read -r -p "[$P@$Q $U]# '1' to list timezones, and type the timezones to set the
 echo "[$P@$Q $U]# Current date & time:"
 timedatectl
 done
-
-
 while true; do # partition creation stage
 read -r -p "[$P@$Q $U]# fdisk:
     - '1' see all options,
@@ -451,8 +443,6 @@ EOF
             esac ;;
     esac
 done
-
-
 while true; do
     # alot of install stuffs
     read -r -p "[$P@$Q $U]# What username would you like to have? : " NEWUSER
