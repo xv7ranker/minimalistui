@@ -72,7 +72,7 @@ done
 while true; do # 3rd stage, networking settings
     read -r -p "$Q Networking:
     - '1' use ethernet,
-    - '2' use wifi (Heavily WIP.),
+    - '2' use wifi (Heavily WIP and DIY.),
     - '3' use wwan (WIP(???)).
     -  answer: " R
 case $R in
@@ -152,13 +152,24 @@ read -r -p "$Q '1' to list timezones, and type the timezones to set the timezone
         less timezones.txt
         rm -rf timezones.txt
         continue ;;
-    *) set-timezones $T
+    *) timedatectl set-timezones $T
         break ;;
     "") continue ;;
     esac
 echo "$Q Current date & time:"
 timedatectl
 done
+get_partition_path() {
+    local dev=$1
+    local num=$2
+    if [[ $dev == *[0-9] ]]; then
+        echo "${dev}p${num}"
+    else
+        echo "${dev}${num}"
+    fi
+}
+# Usage:
+# RR=$(get_partition_path "$D" "$N")
 while true; do # partition creation stage
 read -r -p "$Q fdisk:
     - '1' see all options,
@@ -167,10 +178,11 @@ read -r -p "$Q fdisk:
     - '2l' use 'lsblk' to list partitions and disks into a .txt file,
     - '3' create Empty Partition,
     - '4' create ESP (GPT, part. no. 1),
-    - '5' create Boot Partition (MBR, part. no. 1),
-    - '6' create Root Partition (GPT/MBR, part. no. 2),
-    - '7' create empty partition (DIY) (input nothing to return here) (WIP),
-    - '8' finish (use after finished creating partitions).
+    - '5' create Root Partition (GPT/MBR, part. no. (1 for mbr, 2 for gpt)),
+    - '6' create empty partition (DIY) (input nothing to return here) (WIP),
+    - '7' finish (use after finished creating partitions).
+    - notes: create ESP first before creating Root partition for GPT environtment.
+    - notes: for MBR users, create root partition straight away.
     -  answer: " R
     case $R in
     1) fdisk -h > fdisk.txt
@@ -193,10 +205,12 @@ read -r -p "$Q fdisk:
             less lsblk.txt
             rm -rf lsblk.txt
             continue ;;
-    3) read -r -p "$Q Which device would you like to choose to create the partition on?
+    3) if [[ -z "$D" ]]; then
+        while true; do
+        read -r -p "$Q Which device would you like to choose to create the partition on?
         - '1' see all options,
         - '/dev/sdx' normally for sata devices x (change x with the right letter),
-        - '/dev/nvmex' normally for nvme devices no. x (change x with the right number),
+        - '/dev/nvmexn1' normally for nvme devices no. x (change x with the right number),
         - '/dev/mmcblkx' normally for microsd cards no. x (change x with the right number).
         - answer: " D
         case $D in
@@ -204,9 +218,13 @@ read -r -p "$Q fdisk:
             echo "Use 'q' button to Quit." >> lsblk.txt
             less lsblk.txt
             rm -rf lsblk.txt
-            continue ;;
-        *) continue ;;
+            continue;;
+        *) break;;
+        "") continue;;
         esac
+        done
+        fi
+        while true; do
         read -r -p "$Q In what size format would you like your new partition be made?
         - '1' use MiB,
         - '2' use GiB,
@@ -215,21 +233,31 @@ read -r -p "$Q fdisk:
         case $O in
         1) P="${S}M"
             B="MiB"
-            O="M";;
+            O="M"
+            break;;
         2) P="${S}G"
             B="GiB"
-            O="G";;
+            O="G"
+            break;;
         3) P="${S}T"
             B="TiB"
-            O="T";;
+            O="T"
+            break;;
+        *) continue;;
         esac
+        done
+        while true; do
         read -r -p "$Q GPT (1) or MBR (2)" R
         case $R in
         1) T="0FC63DAF-8483-4772-8E79-3D69D8477DE4"
-            L="gpt" ;;
+            L="gpt"
+            break;;
         2) T="83"
-            L="dos";;
+            L="dos"
+            break;;
+        *) continue;;
         esac
+        done
         read -r -p "$Q How much (in $B) would you like to allocate to your new partition?" S
         read -r -p "$Q What partition number would you give to your new partition?" N
         sudo sfdisk $D --wipe-table --force --quiet <<EOF
@@ -237,7 +265,8 @@ read -r -p "$Q fdisk:
         unit: $O
         $N : size=$S, type=$T, name="DIR"
 EOF
-        DD="${D}$N"
+        DD=$(get_partition_path "$D" "$N")
+        while true; do
         read -r -p "$Q Choose the format for your new partition
         - '1' F2FS, recomended for ssds... supposedly,
         - '2' BTRFS, modern, feature-rich...,
@@ -248,17 +277,27 @@ EOF
         - '7' for fat32
         - answer: " R
         case $R in
-        1) FM="mkfs.f2fs" ;;
-        2) FM="mkfs.btrfs" ;;
-        3) FM="mkfs.xfs" ;;
-        4) FM="mkfs.ext4" ;;
-        5) FM="mkfs.fat -F 12" ;;
-        6) FM="mkfs.fat -F 16" ;;
-        7) FM="mkfs.fat -F 32" ;;
+        1) FM="mkfs.f2fs"
+            break;;
+        2) FM="mkfs.btrfs"
+            break;;
+        3) FM="mkfs.xfs"
+            break;;
+        4) FM="mkfs.ext4"
+            break;;
+        5) FM="mkfs.fat -F 12"
+            break;;
+        6) FM="mkfs.fat -F 16"
+            break;;
+        7) FM="mkfs.fat -F 32"
+            break;;
         *) continue ;;
         esac
+        echo "$Q Creating partition at: $DD"
         $FM $DD ;;
-    4) read -r -p "$Q Which device would you like to choose to create the partition on?
+    4) if [[ -z "$D" ]]; then
+        while true; do
+        read -r -p "$Q Which device would you like to choose to create the partition on?
         - '1' see all options,
         - '/dev/sdx' normally for sata devices x (change x with the right letter),
         - '/dev/nvmex' normally for nvme devices no. x (change x with the right number),
@@ -269,32 +308,42 @@ EOF
             echo "Use 'q' button to Quit." >> lsblk.txt
             less lsblk.txt
             rm -rf lsblk.txt
-            continue ;;
-        *) continue ;;
+            continue;;
+        *) break;;
+        "") continue;;
         esac
+        done
+        fi
+        while true; do
         read -r -p "$Q In what size format would you like your new partition be made?
         - '1' use MiB,
         - '2' use GiB,
         - '3' use TiB.
         - answer: " R
-        case $R in
+        case $O in
         1) P="${S}M"
             B="MiB"
-            O="M";;
+            O="M"
+            break;;
         2) P="${S}G"
             B="GiB"
-            O="G";;
+            O="G"
+            break;;
         3) P="${S}T"
             B="TiB"
-            O="T";;
+            O="T"
+            break;;
+        *) continue;;
         esac
+        done
         read -r -p "$Q How much (in $B) would you like to allocate to your new partition?" S
         sudo sfdisk $D --wipe-table --force --quiet <<EOF
         label: gpt
         unit: $O
         1 : size=$P, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, name="ESPDIR"
 EOF
-        ESPDIR="${D}1"
+        ESPDIR=$(get_partition_path "$D" "1")
+        while true; do
         echo "$Q Choose the fat size for ESP (12, 16, and 32 (32 is Recomended)) and choose the partition"
         read -r -p "$Q Which fat format would you like to use?
         - '1' for fat12.
@@ -302,15 +351,21 @@ EOF
         - '3' for fat32
         - answer: " R
         case $R in
-        1) FM="mkfs.fat -F 12" ;;
-        2) FM="mkfs.fat -F 16" ;;
-        3) FM="mkfs.fat -F 32" ;;
+        1) FM="mkfs.fat -F 12"
+            break;;
+        2) FM="mkfs.fat -F 16"
+            break;;
+        3) FM="mkfs.fat -F 32"
+            break;;
         *) continue
         esac
-        echo "$Q creating ESP: $ESPDIR"
+        done
+        echo "$Q Creating ESP at: $ESPDIR"
         $FM $ESPDIR
         ;;
-    5) read -r -p "$Q Which device would you like to choose to create the partition on?
+    5) if [[ -z "$D" ]]; then
+        while true; do
+        read -r -p "$Q Which device would you like to choose to create the partition on?
         - '1' see all options,
         - '/dev/sdx' normally for sata devices x (change x with the right letter),
         - '/dev/nvmex' normally for nvme devices no. x (change x with the right number),
@@ -321,82 +376,44 @@ EOF
             echo "Use 'q' button to Quit." >> lsblk.txt
             less lsblk.txt
             rm -rf lsblk.txt
-            continue ;;
-        *) continue ;;
+            continue;;
+        *) break;;
+        "") continue;;
         esac
+        done
+        fi
+        while true; do
         read -r -p "$Q In what size format would you like your new partition be made?
         - '1' use MiB,
         - '2' use GiB,
         - '3' use TiB.
         - answer: " R
-        case $R in
+        case $O in
         1) P="${S}M"
             B="MiB"
-            O="M";;
+            O="M"
+            break;;
         2) P="${S}G"
             B="GiB"
-            O="G";;
+            O="G"
+            break;;
         3) P="${S}T"
             B="TiB"
-            O="T";;
+            O="T"
+            break;;
+        *) continue;;
         esac
-        read -r -p "$Q How much (in $B) would you like to allocate to your new partition?" S
-        sudo sfdisk $D --wipe-table --force --quiet <<EOF
-        label: dos
-        unit: $O
-        1 : size=$P, type=83, name="BOOTDIR"
-EOF
-        ESPDIR="${D}1"
-        read -r -p "$Q Choose the format for Boot Partition
-        - '1' F2FS, recomended for ssds... supposedly,
-        - '2' BTRFS, modern, feature-rich...,
-        - '3' XFS, recomended for big files... supposedly,
-        - '4' EXT4, classic...
-        - answer: " R
-        case $R in
-        1) FM="mkfs.f2fs" ;;
-        2) FM="mkfs.btrfs" ;;
-        3) FM="mkfs.xfs" ;;
-        4) FM="mkfs.ext4" ;;
-        *) continue ;;
-        esac
-        $FM $ESPDIR ;;
-    6) read -r -p "$Q Which device would you like to choose to create the partition on?
-        - '1' see all options,
-        - '/dev/sdx' normally for sata devices x (change x with the right letter),
-        - '/dev/nvmex' normally for nvme devices no. x (change x with the right number),
-        - '/dev/mmcblkx' normally for microsd cards no. x (change x with the right number).
-        - answer: " D
-        case $D in
-        1) lsblk > lsblk.txt
-            echo "Use 'q' button to Quit." >> lsblk.txt
-            less lsblk.txt
-            rm -rf lsblk.txt
-            continue ;;
-        *) continue ;;
-        esac
-        read -r -p "$Q In what size format would you like your new partition be made?
-        - '1' use MiB,
-        - '2' use GiB,
-        - '3' use TiB.
-        - answer: " R
-        case $R in
-        1) P="${S}M"
-            B="MiB"
-            O="M";;
-        2) P="${S}G"
-            B="GiB"
-            O="G";;
-        3) P="${S}T"
-            B="TiB"
-            O="T";;
-        esac
+        done
+        while true; do
         read -r -p "$Q GPT (1) or MBR (2)" R
         case $R in
         1) T="0FC63DAF-8483-4772-8E79-3D69D8477DE4"
-            L="gpt" ;;
+            L="gpt"
+            break;;
         2) T="83"
-            L="dos";;
+            L="dos"
+            break;;
+        *) continue;;
         esac
         read -r -p "$Q How much (in $B) would you like to allocate to your new partition?" S
         sudo sfdisk $D --wipe-table --force --quiet <<EOF
@@ -404,7 +421,13 @@ EOF
         unit: $O
         2 : size=$P, type=$T, name="ROOTDIR"
 EOF
-        ROOTDIR="${D}2"
+        if [[ -z "$ESPDIR" ]]
+            N="1"
+        else
+            N="2"
+        fi
+        ROOTDIR=$(get_partition_path "$D" "$N")
+        while true; do
         read -r -p "$Q Choose the format for Root Partition
         - '1' F2FS, recomended for ssds... supposedly,
         - '2' BTRFS, modern, feature-rich...,
@@ -412,39 +435,71 @@ EOF
         - '4' EXT4, classic...
         - answer: " R
         case $R in
-        1) FM="mkfs.f2fs" ;;
-        2) FM="mkfs.btrfs" ;;
-        3) FM="mkfs.xfs" ;;
-        4) FM="mkfs.ext4" ;;
+        1) FM="mkfs.f2fs"
+            break;;
+        2) FM="mkfs.btrfs"
+            break;;
+        3) FM="mkfs.xfs"
+            break;;
+        4) FM="mkfs.ext4"
+            break;;
         *) continue ;;
         esac
+        done
         $FM $ROOTDIR ;;
-    7) read -r -p "$Q usage: fdisk <device>
+    6) read -r -p "$Q usage: fdisk <device>
             fdisk " R
             case $R in
             "") continue ;;
             *) fdisk $R
                 continue ;;
             esac ;;
-    8) if [ -z "$ROOTDIR" ]; then
-            read -r -p "$Q Enter the full path for the ROOT partition (e.g., /dev/sda2): " ROOTDIR
-        fi
-        if [ -z "$ESPDIR" ]; then
+    7) if [ -z "$ESPDIR" ]; then
             read -r -p "$Q Enter the full path for the ESP/BOOT partition (e.g., /dev/sda1): " ESPDIR
+        fi
+        if [ -z "$ROOTDIR" ]; then
+            read -r -p "$Q Enter the full path for the ROOT partition (e.g., /dev/sda2): " ROOTDIR
         fi
         read -r -p "$Q Are these paths correct? (y/n): " R
             case $R in
             [yY]*) break ;;
             *) continue ;; # Re-enter partition stage
             esac ;;
+    *) continue;;
     esac
 done
-while true; do
-    # alot of install stuffs
-    read -r -p "$Q What username would you like to have? : " NEWUSER
-    read -r -p "$Q What hostname would you like to have? : " H
+read -r -p "$Q What username would you like to have? : " NEWUSER
+read -r -p "$Q What hostname would you like to have? : " H
+    while true; do
+    read -r -p "'1' for grub (Universal), '0' for systemd (Default, GPT/EFI only)" V
+    case $V in
+    1) if ! [[ -z "$ESPDIR" ]]; then
+            P="grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB && grub-mkconfig -o /boot/grub/grub.cfg"
+            F=""
+        else
+            P="grub-install --target=i386-pc $D && grub-mkconfig -o /boot/grub/grub.cfg"
+            F="grub"
+        fi
+
+        break;;
+    *) P="bootctl install"
+        while true; do
+        read -r -p "Do you want to be able to modify boot entries when bootup? '1' for yes (default (recomended for personal use)), '0' for no (more secure (recomended for mass use))" EW
+        case $EW in
+        0) RT=""
+            break;;
+        *) RT="1"
+            break;;
+        "") continue;;
+        esac
+        done
+        break;;
+    "") continue;;
+    esac
+    done
+    while true; do # alot of install stuffs
     X="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso"
-    Q="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram"
+    W="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram"
     read -r -p "$Q Would you like to install extra packages (you can go to https://github.com/xv7ranker/minimalistui to see every packages (including extras))?
     - '1' install all extra packages,
     - '2' install extra pacman packages,
@@ -452,13 +507,17 @@ while true; do
     - '0' do not install extra packages.
     - answer: " R
     case $R in
-    1) ;;
-    2) Q="echo "$Q skipping installing extra flatpak packages."" ;;
-    3) X="echo "$Q skipping installing extra pacman packages."" ;;
+    1) break;;
+    2) W="echo "$Q skipping installing extra flatpak packages.""
+        break;;
+    3) X="echo "$Q skipping installing extra pacman packages.""
+        break;;
     0) X="echo "$Q skipping installing extra pacman packages.""
-        Q="echo "$Q skipping installing extra flatpak packages."" ;;
-    "") continue ;;
+        W="echo "$Q skipping installing extra flatpak packages.""
+        break;;
+    *) continue ;;
     esac
+    done
     VENDORID=$(grep 'vendor_id' /proc/cpuinfo | head -n 1 | awk '{print $NF}')
     if [[ "$VENDORID" == "GenuineIntel" ]]; then
         C="intel-ucode"
@@ -467,6 +526,7 @@ while true; do
         C="amd-ucode"
         echo "$Q CPU is AMD, installing $C"
     fi
+    while true; do
     read -r -p "$Q Which GPU driver would you like to install?
     - '1' to install AMD GPU Driver (Modern (xf86-video-amdgpu)) + Vulkan (vulkan-radeon) + Mesa (Depend.),
     - '2' to install AMD GPU Driver (Old (xf86-video-ati)) + Mesa (Default),
@@ -492,17 +552,20 @@ while true; do
     1) G="xf86-video-amdgpu vulkan-radeon" ;;
     2) G="xf86-video-ati" ;;
     3) G="xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver" ;;
-    4) G="nvidia-dkms nvidia-settings nvidia-utils" ;;
+    4) G="nvidia-dkms nvidia-settings nvidia-utils linux-zen-headers" ;;
     5) G="xf86-video-nouveau" ;;
     6) G="xf86-video-vesa" ;;
-    7) G="xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon"
+    7) G="xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon linux-zen-headers"
         C="intel-ucode amd-ucode" ;;
+    *) continue;;
     esac
     mkdir -p /mnt
-    mkdir -p /mnt/boot
     mount $ROOTDIR /mnt
-    mount $ESPDIR /mnt/boot
-    pacstrap -K /mnt base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs fzf bat zoxide lf thefuck ntfs-3g unzip p7zip unrar gufw ufw  neovim squashfs-tools $G $C
+    if ! [[ -z "$ESPDIR" ]]; then
+        mkdir -p /mnt/boot
+        mount $ESPDIR /mnt/boot
+    fi
+    pacstrap -K /mnt base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs fzf bat zoxide lf thefuck ntfs-3g unzip p7zip unrar gufw ufw neovim squashfs-tools $G $C $F
     genfstab -U /mnt >> /mnt/etc/fstab
     mv /minui /mnt/minui
     cp -r /var/lib/iwd/ /mnt/var/lib/iwd/
@@ -513,12 +576,17 @@ while true; do
     Q=\"[root@$H /]"
     echo "$Q Entering chroot environtment."
     echo "$H" > /etc/hostname
-    fallocate -l 8G /swapfile
+    dd if=/dev/zero of=/swapfile bs=1M count=8192 status=progress
+    if [ "$(stat -f -c %T /)" == "btrfs" ]; then
+        truncate -s 0 /swapfile
+        chattr +C /swapfile
+        fallocate -l 8G /swapfile
+    fi
     chmod 600 /swapfile
     mkswap /swapfile
     swapon /swapfile
     echo "/swapfile none swap defaults 0 0" >> /etc/fstab
-    ln -sf /usr/share/zoneinfo/$T /etc/localtime
+    ln -sf /usr/share/zoneinfo/"$T" /etc/localtime
     hwclock --systohc
     locale-gen
     echo "$Q Creating account."
@@ -534,11 +602,11 @@ while true; do
     chown -R "$NEWUSER":"$NEWUSER" /home/"$NEWUSER"
     chmod +x /home/"$NEWUSER"/.xinitrc
     chmod +x /home/"$NEWUSER"/.bash_profile
-    bootctl install
+    $P
     echo "$Q Installing DE Packages & Some Extras."
     pacman -S --noconfirm xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji materia-gtk-theme firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us git thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman
     $X
-    $Q
+    $W
     sudo -u "$NEWUSER" git clone [https://aur.archlinux.org/yay.git](https://aur.archlinux.org/yay.git)
     cd yay
     sudo -u "$NEWUSER" makepkg -si
