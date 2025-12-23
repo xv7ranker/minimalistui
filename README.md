@@ -36,21 +36,30 @@ Enter options based on the questions and based on how would you like your Minima
 
 6.) MinimalistUI is installed into your device! (MinimalistUI didnt have any GUI greeters, so you would need to enter your user name and its password in the TTY to enter (will try to search for alternative)).
 
-possible total installable packages:
+possible installable packages:
 
-(pacman: xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme networkmanager xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji materia-gtk-theme w3m firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tabbase git thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman)
+(pacstrap (important base packages): base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs fzf bat zoxide lf thefuck ntfs-3g unzip p7zip unrar gufw ufw neovim squashfs-tools intel-ucode amd-ucode xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon)
 
-(pacstrap (important base packages): base base-devel linux-zen linux-firmware amd-ucode intel-ucode efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs fzf bat zoxide lf thefuck ntfs-3g unzip p7zip unrar gufw ufw xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon neovim) 
+(pacman: xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji materia-gtk-theme firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us git thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman )
 
-(extra: kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin squashfs-tools cdrtools xorriso (flatpak: sober zoom zapzap telegram))
+(extra installables: (pacman: kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso) (flatpak: sober zoom zapzap telegram))
 
 Device:
 Dell Latitude 7290
 Intel Core I5-8350U
 Intel Graphics UHD 620
-8GB LPDDR4 2600MT/s x1
-256GB NVMe SSD | PCIe Gen 3.0 x4
-Dual-Boot: EndeavourOS (Arch-Linux Based) - Windows 11
+8GB LPDDR4 2600MT/s x1 | 256GB NVMe M.2 SSD | PCIe Gen 3.0 x4
+Dual-Boot: MinimalistUI V251223 - Windows 11
+
+Building tools:
+- mkiso.sh (to automate minimalistui.iso creations (modifyable if you want to)): https://github.com/xv7ranker/minimalistui-extras/blob/main/mkiso.sh
+- mkisosfs.sh (to automate common .iso and .sfs file creation): https://github.com/xv7ranker/minimalistui-extras/blob/main/mkisosfs.sh
+- 'xorriso', 'cdrtools', 'squashfs-tools', and 'git' as dependencies.
+
+Legend (For release tags):
+- 'W' for WIP (Work In Progress (Useable, but highly experimental and may contain bugs or errors that should be covered by newer releases))
+- 'Ot' for Outdated (Useable, but highly not recomended to use, since these versions are very likely to contain bugs or errors that should be fixed in newer releases)
+- 'Ol' for Older (useable, but likely using older archlinux .iso base versions or have earlier version of essential minimalistui .sh scripts)
 
 credit to:
 - Arch Linux,
