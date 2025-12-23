@@ -565,6 +565,16 @@ read -r -p "$Q What hostname would you like to have? : " H
         mkdir -p /mnt/boot
         mount $ESPDIR /mnt/boot
     fi
+    if ! [[ "$V" == "1" ]]; then
+        echo "default minui.conf
+        timeout 4
+        console-mode max" > /mnt/boot/loader/loader.conf
+        if [[ "$RT" == "" ]]; then
+            echo "editor no" >> /mnt/boot/loader/loader.conf
+        else
+            echo "editor yes" >> /mnt/boot/loader/loader.conf
+    if
+
     pacstrap -K /mnt base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs fzf bat zoxide lf thefuck ntfs-3g unzip p7zip unrar gufw ufw neovim squashfs-tools $G $C $F
     genfstab -U /mnt >> /mnt/etc/fstab
     mv /minui /mnt/minui
