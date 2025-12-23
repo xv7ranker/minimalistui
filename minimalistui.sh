@@ -1,27 +1,24 @@
 #!/bin/bash
-T=$(pwd)
-P=$(whoami)
-U=$(basename "$T")
-Q=$(cat /etc/hostname)
+Q="[root@archiso /]# "
 while true; do
 if [[ $EUID -ne 0 ]]; then # 1st stage, sudo
-    echo "[$P@$Q $U]$ ERROR: Must run with sudo."
-    read -r -p "[$P@$Q $U]$ Rerun with sudo? (y/n): " R
+    echo "$Q ERROR: Must run with sudo."
+    read -r -p "$Q Rerun with sudo? (y/n): " R
     case $R in
     [yY]) exec sudo "$0" "$@" ;;
     "") continue ;;
-    *) echo "[$P@$Q $U]#$ Exiting."
+    *) echo "$Q Exiting."
        exit 1 ;;
     esac
 else
     break
 fi
 done
-echo "[$P@$Q $U]# Shell Script (.sh) to install MinimalistUI."
-read -r -p "[$P@$Q $U]# Do you want to change console keyboard layout and font? (y/n): " R # 2nd stage, console font & keyboard layout settings
+echo "$Q Shell Script (.sh) to install MinimalistUI."
+read -r -p "$Q Do you want to change console keyboard layout and font? (Modified Language & Font Settings will be saved and copied into your new installation later.) (y/n): " R # 2nd stage, console font & keyboard layout settings
 while true; do
 case $R in
-[yY]) read -r -p "[$P@$Q $U]# Change your keyboard layout to:
+[yY]) read -r -p "$Q Change your keyboard layout to:
 - '0' to skip,
 - '1' to see all options,
 - 'us' to set keyboard layout to US (Default),
@@ -39,10 +36,10 @@ case $R in
         rm -rf keymaps.txt
         break
         else
-        echo "[$P@$Q $U]# Keyboard layout "$K" not found, try again."
+        echo "$Q Keyboard layout "$K" not found, try again."
         continue ;;
     esac
-    read -r -p "[$P@$Q $U]# Change your console font to:
+    read -r -p "$Q Change your console font to:
     - '0' skip,
     - '1' see all options,
     - 'ter-132b' for HiDPI screens (arch installation guide recomendation).
@@ -52,7 +49,7 @@ case $R in
         1) ls /usr/share/kbd/consolefonts > fonts.txt
             echo "When changing font, add the format of the font you want to change to, like if you want to change to
             iso01.08, you should write iso01.08.gz." >> fonts.txt
-            echo "[$P@$Q $U]# Ignore files starting with 'README.'."
+            echo "$Q Ignore files starting with 'README.'."
             echo "Use 'q' button to Quit." >> fonts.txt
             less fonts.txt
             continue ;;
@@ -62,46 +59,46 @@ case $R in
                 rm -rf fonts.txt
                 break
             else
-                echo "[$P@$Q $U]# ERROR: Console font '$C' not found, try again."
+                echo "$Q ERROR: Console font '$C' not found, try again."
                 continue
             fi ;;
         "") continue ;;
         esac ;;
-[nN]) echo "[$P@$Q $U]# Not Changing Keyboard Layout (Default: US) and Console Font."
+[nN]) echo "$Q Not Changing Keyboard Layout (Default: US) and Console Font."
     break ;;
 "") continue ;;
 esac
 done
 while true; do # 3rd stage, networking settings
-    read -r -p "[$P@$Q $U]# Networking:
+    read -r -p "$Q Networking:
     - '1' use ethernet,
     - '2' use wifi (Heavily WIP.),
     - '3' use wwan (WIP(???)).
     -  answer: " R
 case $R in
     "") continue ;;
-    [dD]) echo "[$P@$Q $U]# Skipping connection."
-        echo "[$P@$Q $U]# Debugging Purpose Only."
+    [dD]) echo "$Q Skipping connection."
+        echo "$Q Debugging Purpose Only."
         break ;;
-    1) echo "[$P@$Q $U]# Trying to ping ping.archlinux.org"
+    1) echo "$Q Trying to ping ping.archlinux.org"
         ping -c 1 -w 5 ping.archlinux.org > /dev/null 2>&1
         if [ $? -eq 0 ]; then
-            echo "[$P@$Q $U]# ping ping.archlinux.org succesfull, continuing."
+            echo "$Q ping ping.archlinux.org succesfull, continuing."
             break
         else
-            echo "[$P@$Q $U]# ping ping.archlinux.org failed, check ethernet cable / internet status before re-trying."
+            echo "$Q ping ping.archlinux.org failed, check ethernet cable / internet status before re-trying."
             continue
         fi ;;
-    3) echo "[$P@$Q $U]# Trying to ping ping.archlinux.org"
+    3) echo "$Q Trying to ping ping.archlinux.org"
         ping -c 1 -w 5 ping.archlinux.org > /dev/null 2>&1
         if [ $? -eq 0 ]; then
-            echo "[$P@$Q $U]# ping ping.archlinux.org succesfull, continuing."
+            echo "$Q ping ping.archlinux.org succesfull, continuing."
             break
         else
-            echo "[$P@$Q $U]# ping ping.archlinux.org failed, check cellular data amount left / local area internet status before re-trying."
+            echo "$Q ping ping.archlinux.org failed, check cellular data amount left / local area internet status before re-trying."
             continue
         fi ;;
-    2) read -r -p "[$P@$Q $U]# iwctl:
+    2) read -r -p "$Q iwctl:
         - '1' see all options,
         - '2' connect to network / wifis (wlan0),
         - '3' connect to hidden network / wifis (wlan0),
@@ -116,54 +113,54 @@ case $R in
                 less iwctl.txt -F
                 rm -rf iwctl.txt
                 continue ;;
-            2) read -r -p "usage: iwctl station wlan0 connect <network name> <security protocol>
+            2) read -r -p "$Q usage: iwctl station wlan0 connect <network name> <security protocol>
                 iwctl station wlan0 connect " R
                 iwctl station wlan0 connect $R
                 break ;;
-            3) read -r -p "usage: iwctl station wlan0 connect-hidden <hidden network name>
+            3) read -r -p "$Q usage: iwctl station wlan0 connect-hidden <hidden network name>
                 iwctl station wlan0 connect-hidden " R
                 iwctl station wlan0 connect-hidden $R
                 break ;;
             4) iwctl station wlan0 get-networks > iwctl.txt
                 echo "Use 'q' button to Quit." >> iwctl.txt
-                echo "[$P@$Q $U]# press 'y' to read iwctl.txt"
+                echo "$Q press 'y' to read iwctl.txt"
                 less iwctl.txt -F
                 rm -rf iwctl.txt
                 break ;;
-            5) read -r -p "iwctl " R
+            5) read -r -p "$Q iwctl " R
                 iwctl $R
                 continue ;;
             "") continue ;;
             fF) break ;;
         esac
-            echo "[$P@$Q $U]# Trying to ping ping.archlinux.org"
+            echo "$Q Trying to ping ping.archlinux.org"
             ping -c 1 -w 5 ping.archlinux.org > /dev/null 2>&1
         if [ $? -eq 0 ]; then
-            echo "[$P@$Q $U]# ping ping.archlinux.org succesfull, continuing."
+            echo "$Q ping ping.archlinux.org succesfull, continuing."
             break
         else
-        echo "[$P@$Q $U]# ping ping.archlinux.org failed, check wifi connection / local area internet status before re-trying."
+        echo "$Q ping ping.archlinux.org failed, check wifi connection / local area internet status before re-trying."
         continue
         fi ;;
 esac
 done
 while true; do # timezone setting stage
-read -r -p "[$P@$Q $U]# '1' to list timezones, and type the timezones to set the timezone (Area/Location (e.g. Asia/Jakarta)): " T
+read -r -p "$Q '1' to list timezones, and type the timezones to set the timezone (Area/Location (e.g. Asia/Jakarta)): " T
     case $T in
     1) timedatectl list-timezones > timezones.txt
         echo "Use 'q' button to Quit." >> timezones.txt
         less timezones.txt
         rm -rf timezones.txt
         continue ;;
-    *) timedatectl set-timezones $T
+    *) set-timezones $T
         break ;;
     "") continue ;;
     esac
-echo "[$P@$Q $U]# Current date & time:"
+echo "$Q Current date & time:"
 timedatectl
 done
 while true; do # partition creation stage
-read -r -p "[$P@$Q $U]# fdisk:
+read -r -p "$Q fdisk:
     - '1' see all options,
     - '2' list partitions and disks in a .txt file,
     - '2b' use 'blkid' to list partitions and disks into a .txt file,
@@ -196,7 +193,7 @@ read -r -p "[$P@$Q $U]# fdisk:
             less lsblk.txt
             rm -rf lsblk.txt
             continue ;;
-    3) read -r -p "[$P@$Q $U]# Which device would you like to choose to create the partition on?
+    3) read -r -p "$Q Which device would you like to choose to create the partition on?
         - '1' see all options,
         - '/dev/sdx' normally for sata devices x (change x with the right letter),
         - '/dev/nvmex' normally for nvme devices no. x (change x with the right number),
@@ -210,7 +207,7 @@ read -r -p "[$P@$Q $U]# fdisk:
             continue ;;
         *) continue ;;
         esac
-        read -r -p "[$P@$Q $U]# In what size format would you like your new partition be made?
+        read -r -p "$Q In what size format would you like your new partition be made?
         - '1' use MiB,
         - '2' use GiB,
         - '3' use TiB.
@@ -218,30 +215,30 @@ read -r -p "[$P@$Q $U]# fdisk:
         case $O in
         1) P="${S}M"
             B="MiB"
-            U="M";;
+            O="M";;
         2) P="${S}G"
             B="GiB"
-            U="G";;
+            O="G";;
         3) P="${S}T"
             B="TiB"
-            U="T";;
+            O="T";;
         esac
-        read -r -p "GPT (1) or MBR (2)" R
+        read -r -p "$Q GPT (1) or MBR (2)" R
         case $R in
         1) T="0FC63DAF-8483-4772-8E79-3D69D8477DE4"
             L="gpt" ;;
         2) T="83"
             L="dos";;
         esac
-        read -r -p "How much (in $B) would you like to allocate to your new partition?" S
-        read -r -p "What partition number would you give to your new partition?" N
+        read -r -p "$Q How much (in $B) would you like to allocate to your new partition?" S
+        read -r -p "$Q What partition number would you give to your new partition?" N
         sudo sfdisk $D --wipe-table --force --quiet <<EOF
         label: $L
-        unit: $U
+        unit: $O
         $N : size=$S, type=$T, name="DIR"
 EOF
         DD="${D}$N"
-        read -r -p "[$P@$Q $U]# Choose the format for your new partition
+        read -r -p "$Q Choose the format for your new partition
         - '1' F2FS, recomended for ssds... supposedly,
         - '2' BTRFS, modern, feature-rich...,
         - '3' XFS, recomended for big files... supposedly,
@@ -258,11 +255,10 @@ EOF
         5) FM="mkfs.fat -F 12" ;;
         6) FM="mkfs.fat -F 16" ;;
         7) FM="mkfs.fat -F 32" ;;
-        *) continue
         *) continue ;;
         esac
         $FM $DD ;;
-    4) read -r -p "[$P@$Q $U]# Which device would you like to choose to create the partition on?
+    4) read -r -p "$Q Which device would you like to choose to create the partition on?
         - '1' see all options,
         - '/dev/sdx' normally for sata devices x (change x with the right letter),
         - '/dev/nvmex' normally for nvme devices no. x (change x with the right number),
@@ -276,7 +272,7 @@ EOF
             continue ;;
         *) continue ;;
         esac
-        read -r -p "[$P@$Q $U]# In what size format would you like your new partition be made?
+        read -r -p "$Q In what size format would you like your new partition be made?
         - '1' use MiB,
         - '2' use GiB,
         - '3' use TiB.
@@ -284,37 +280,37 @@ EOF
         case $R in
         1) P="${S}M"
             B="MiB"
-            U="M";;
+            O="M";;
         2) P="${S}G"
             B="GiB"
-            U="G";;
+            O="G";;
         3) P="${S}T"
             B="TiB"
-            U="T";;
+            O="T";;
         esac
-        read -r -p "[$P@$Q $U]# How much (in $B) would you like to allocate to your new partition?" S
+        read -r -p "$Q How much (in $B) would you like to allocate to your new partition?" S
         sudo sfdisk $D --wipe-table --force --quiet <<EOF
         label: gpt
-        unit: $U
+        unit: $O
         1 : size=$P, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, name="ESPDIR"
 EOF
         ESPDIR="${D}1"
-        echo "[$P@$Q $U]# Choose the fat size for ESP (12, 16, and 32 (32 is Recomended)) and choose the partition"
-        read -r -p "[$P@$Q $U]# Which fat format would you like to use?
+        echo "$Q Choose the fat size for ESP (12, 16, and 32 (32 is Recomended)) and choose the partition"
+        read -r -p "$Q Which fat format would you like to use?
         - '1' for fat12.
         - '2' for fat16.
         - '3' for fat32
         - answer: " R
         case $R in
-        1) FM= mkfs.fat -F 12 ;;
-        2) FM= mkfs.fat -F 16 ;;
-        3) FM= mkfs.fat -F 32 ;;
+        1) FM="mkfs.fat -F 12" ;;
+        2) FM="mkfs.fat -F 16" ;;
+        3) FM="mkfs.fat -F 32" ;;
         *) continue
         esac
-        echo "[$P@$Q $U]# creating ESP: $ESPDIR"
+        echo "$Q creating ESP: $ESPDIR"
         $FM $ESPDIR
         ;;
-    5) read -r -p "[$P@$Q $U]# Which device would you like to choose to create the partition on?
+    5) read -r -p "$Q Which device would you like to choose to create the partition on?
         - '1' see all options,
         - '/dev/sdx' normally for sata devices x (change x with the right letter),
         - '/dev/nvmex' normally for nvme devices no. x (change x with the right number),
@@ -328,7 +324,7 @@ EOF
             continue ;;
         *) continue ;;
         esac
-        read -r -p "[$P@$Q $U]# In what size format would you like your new partition be made?
+        read -r -p "$Q In what size format would you like your new partition be made?
         - '1' use MiB,
         - '2' use GiB,
         - '3' use TiB.
@@ -336,22 +332,22 @@ EOF
         case $R in
         1) P="${S}M"
             B="MiB"
-            U="M";;
+            O="M";;
         2) P="${S}G"
             B="GiB"
-            U="G";;
+            O="G";;
         3) P="${S}T"
             B="TiB"
-            U="T";;
+            O="T";;
         esac
-        read -r -p "[$P@$Q $U]# How much (in $B) would you like to allocate to your new partition?" S
+        read -r -p "$Q How much (in $B) would you like to allocate to your new partition?" S
         sudo sfdisk $D --wipe-table --force --quiet <<EOF
         label: dos
-        unit: $U
+        unit: $O
         1 : size=$P, type=83, name="BOOTDIR"
 EOF
-        ESPDIR="${D}2"
-        read -r -p "[$P@$Q $U]# Choose the format for Boot Partition
+        ESPDIR="${D}1"
+        read -r -p "$Q Choose the format for Boot Partition
         - '1' F2FS, recomended for ssds... supposedly,
         - '2' BTRFS, modern, feature-rich...,
         - '3' XFS, recomended for big files... supposedly,
@@ -365,7 +361,7 @@ EOF
         *) continue ;;
         esac
         $FM $ESPDIR ;;
-    6) read -r -p "[$P@$Q $U]# Which device would you like to choose to create the partition on?
+    6) read -r -p "$Q Which device would you like to choose to create the partition on?
         - '1' see all options,
         - '/dev/sdx' normally for sata devices x (change x with the right letter),
         - '/dev/nvmex' normally for nvme devices no. x (change x with the right number),
@@ -379,7 +375,7 @@ EOF
             continue ;;
         *) continue ;;
         esac
-        read -r -p "[$P@$Q $U]# In what size format would you like your new partition be made?
+        read -r -p "$Q In what size format would you like your new partition be made?
         - '1' use MiB,
         - '2' use GiB,
         - '3' use TiB.
@@ -387,29 +383,29 @@ EOF
         case $R in
         1) P="${S}M"
             B="MiB"
-            U="M";;
+            O="M";;
         2) P="${S}G"
             B="GiB"
-            U="G";;
+            O="G";;
         3) P="${S}T"
             B="TiB"
-            U="T";;
+            O="T";;
         esac
-        read -r -p "[$P@$Q $U]# GPT (1) or MBR (2)" R
+        read -r -p "$Q GPT (1) or MBR (2)" R
         case $R in
         1) T="0FC63DAF-8483-4772-8E79-3D69D8477DE4"
             L="gpt" ;;
         2) T="83"
             L="dos";;
         esac
-        read -r -p "[$P@$Q $U]# How much (in $B) would you like to allocate to your new partition?" S
-        sudo sfdisk $DD --wipe-table --force --quiet <<EOF
+        read -r -p "$Q How much (in $B) would you like to allocate to your new partition?" S
+        sudo sfdisk $D --wipe-table --force --quiet <<EOF
         label: $L
-        unit: $U
+        unit: $O
         2 : size=$P, type=$T, name="ROOTDIR"
 EOF
         ROOTDIR="${D}2"
-        read -r -p "[$P@$Q $U]# Choose the format for Root Partition
+        read -r -p "$Q Choose the format for Root Partition
         - '1' F2FS, recomended for ssds... supposedly,
         - '2' BTRFS, modern, feature-rich...,
         - '3' XFS, recomended for big files... supposedly,
@@ -423,7 +419,7 @@ EOF
         *) continue ;;
         esac
         $FM $ROOTDIR ;;
-    7) read -r -p " usage: fdisk <device>
+    7) read -r -p "$Q usage: fdisk <device>
             fdisk " R
             case $R in
             "") continue ;;
@@ -431,12 +427,12 @@ EOF
                 continue ;;
             esac ;;
     8) if [ -z "$ROOTDIR" ]; then
-            read -r -p "[$P@$Q $U]# Enter the full path for the ROOT partition (e.g., /dev/sda2): " ROOTDIR
+            read -r -p "$Q Enter the full path for the ROOT partition (e.g., /dev/sda2): " ROOTDIR
         fi
         if [ -z "$ESPDIR" ]; then
-            read -r -p "[$P@$Q $U]# Enter the full path for the ESP/BOOT partition (e.g., /dev/sda1): " ESPDIR
+            read -r -p "$Q Enter the full path for the ESP/BOOT partition (e.g., /dev/sda1): " ESPDIR
         fi
-        read -r -p "[$P@$Q $U]# Are these paths correct? (y/n): " R
+        read -r -p "$Q Are these paths correct? (y/n): " R
             case $R in
             [yY]*) break ;;
             *) continue ;; # Re-enter partition stage
@@ -445,11 +441,11 @@ EOF
 done
 while true; do
     # alot of install stuffs
-    read -r -p "[$P@$Q $U]# What username would you like to have? : " NEWUSER
-    read -r -p "[$P@$Q $U]# What hostname would you like to have? : " H
+    read -r -p "$Q What username would you like to have? : " NEWUSER
+    read -r -p "$Q What hostname would you like to have? : " H
     X="pacman -S --no-confirm kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso"
     Q="sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram"
-    read -r -p "[$P@$Q $U]# Would you like to install extra packages (you can go to https://github.com/xv7ranker/minimalistui to see every packages (including extras))?
+    read -r -p "$Q Would you like to install extra packages (you can go to https://github.com/xv7ranker/minimalistui to see every packages (including extras))?
     - '1' install all extra packages,
     - '2' install extra pacman packages,
     - '3' install extra flatpak packages,
@@ -457,21 +453,21 @@ while true; do
     - answer: " R
     case $R in
     1) ;;
-    2) Q="echo "skipping installing extra flatpak packages."" ;;
-    3) X="echo "skipping installing extra pacman packages."" ;;
-    0) X="echo "skipping installing extra pacman packages.""
-        Q="echo "skipping installing extra flatpak packages."" ;;
+    2) Q="echo "$Q skipping installing extra flatpak packages."" ;;
+    3) X="echo "$Q skipping installing extra pacman packages."" ;;
+    0) X="echo "$Q skipping installing extra pacman packages.""
+        Q="echo "$Q skipping installing extra flatpak packages."" ;;
     "") continue ;;
     esac
     VENDORID=$(grep 'vendor_id' /proc/cpuinfo | head -n 1 | awk '{print $NF}')
     if [[ "$VENDORID" == "GenuineIntel" ]]; then
         C="intel-ucode"
-        echo "[$P@$Q $U]# CPU is Intel, installing $C"
+        echo "$Q CPU is Intel, installing $C"
     elif [[ "$VENDORID" == "AuthenticAMD" ]]; then
         C="amd-ucode"
-        echo "[$P@$Q $U]# CPU is AMD, installing $C"
+        echo "$Q CPU is AMD, installing $C"
     fi
-    read -r -p "[$P@$Q $U]# Which GPU driver would you like to install?
+    read -r -p "$Q Which GPU driver would you like to install?
     - '1' to install AMD GPU Driver (Modern (xf86-video-amdgpu)) + Vulkan (vulkan-radeon) + Mesa (Depend.),
     - '2' to install AMD GPU Driver (Old (xf86-video-ati)) + Mesa (Default),
     - '3' to install Intel GPU Driver (xf86-video-intel) + Vulkan (vulkan-intel) + Mesa (Depend.) + Media Driver (Extra),
@@ -484,7 +480,7 @@ while true; do
     if [ -n "$ESPDIR" ] && [ -n "$ROOTDIR" ] && [ -n "$NEWUSER" ] && [ -n "$R" ]; then
         ROOT_UUID=$(blkid -s UUID -o value "$ROOTDIR")
         if [ -z "$ROOT_UUID" ]; then
-            echo "[$P@$Q $U]# ERROR: Could not find UUID for Root Directory ($ROOTDIR). Check disk path."
+            echo "$Q ERROR: Could not find UUID for Root Directory ($ROOTDIR). Check disk path."
             continue
         fi
         break
@@ -502,60 +498,35 @@ while true; do
     7) G="xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon"
         C="intel-ucode amd-ucode" ;;
     esac
-    mkdir /mnt
-    mkdir /mnt/boot
+    mkdir -p /mnt
+    mkdir -p /mnt/boot
     mount $ROOTDIR /mnt
     mount $ESPDIR /mnt/boot
-    read -r -p "[$P@$Q $U]# What language would you like to set? ('1' to see all options) : " R
-    case $R in
-    1) less /mnt/etc/locale.gen
-        echo "delete '#' and add . between locale and charset" >> /mnt/etc/locale.gen
-        continue ;;
-    "") continue ;;
-    esac
     pacstrap -K /mnt base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs fzf bat zoxide lf thefuck ntfs-3g unzip p7zip unrar gufw ufw  neovim squashfs-tools $G $C
     genfstab -U /mnt >> /mnt/etc/fstab
+    mv /minui /mnt/minui
+    cp -r /var/lib/iwd/ /mnt/var/lib/iwd/
+    cp -r /etc/NetworkManager/system-connections/ /mnt/etc/NetworkManager/system-connections/
+    cp -r /etc/vconsole.conf /mnt/etc/vconsole.conf
+    cp -r /etc/locale.conf /mnt/etc/locale.conf
+    arch-chroot /mnt <<EOF
+    Q=\"[root@$H /]"
+    echo "$Q Entering chroot environtment."
+    echo "$H" > /etc/hostname
     fallocate -l 8G /swapfile
     chmod 600 /swapfile
     mkswap /swapfile
     swapon /swapfile
     echo "/swapfile none swap defaults 0 0" >> /etc/fstab
-    mv /minui /mnt/minui
-    cp -r /var/lib/iwd/ /mnt/var/lib/iwd/
-    cp -r /etc/NetworkManager/system-connections/ /mnt/etc/NetworkManager/system-connections/
-    cp -r /etc/vconsole.conf /mnt/etc/vconsole.conf
-    arch-chroot /mnt <<EOF
-    T=$(pwd)
-    P=$(whoami)
-    U=$(basename "$T")
-    Q=$(cat /etc/hostname)
     ln -sf /usr/share/zoneinfo/$T /etc/localtime
     hwclock --systohc
-    locale-gen $R
-    echo "LANG=$R
-    LC_ADDRESS=$R
-    LC_IDENTIFICATION=$R
-    LC_MEASUREMENT=$R
-    LC_MONETARY=$R
-    LC_NAME=$R
-    LC_NUMERIC=$R
-    LC_PAPER=$R
-    LC_TELEPHONE=$R
-    LC_TIME=$R" > /etc/locale.conf
-    echo "$H" >> /etc/hostname
-    echo "[$P@$Q $U]# Creating account"
+    locale-gen
+    echo "$Q Creating account."
     useradd -m -G wheel,audio,video,storage,power -s /bin/bash "$NEWUSER"
-    echo "[$P@$Q $U]# You can modify root account password using command "passwd" while being root user or "sudo passwd" if you are using user account and you didnt know what your root account password is"
-    echo "[$P@$Q $U]# Set your new user password"
+    echo "$Q You can modify root account password using command "passwd" while being root user or "sudo passwd" if you are using user account and you didnt know what your root account password is."
+    echo "$Q Set your new user password."
     passwd "$NEWUSER"
     echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/99_wheel_config
-    echo '#!/bin/bash' > /home/"$NEWUSER"/.xinitrc
-    echo 'exec startxfce4' >> /home/"$NEWUSER"/.xinitrc
-    echo '#!/bin/bash' > /home/"$NEWUSER"/.bash_profile
-    echo '# Auto-start XFCE on TTY1 if no X session is running' >> /home/"$NEWUSER"/.bash_profile
-    echo 'if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then' >> /home/"$NEWUSER"/.bash_profile
-    echo '    exec startx' >> /home/"$NEWUSER"/.bash_profile
-    echo 'fi' >> /home/"$NEWUSER"/.bash_profile
     echo 'fastfetch' >> /home/"$NEWUSER"/.bashrc
     echo 'cpufetch' >> /home/"$NEWUSER"/.bashrc
     mkdir /home/"$NEWUSER"/media
@@ -564,16 +535,15 @@ while true; do
     chmod +x /home/"$NEWUSER"/.xinitrc
     chmod +x /home/"$NEWUSER"/.bash_profile
     bootctl install
-    echo "[$P@$Q $U]# Installing DE Packages & Some Extras."
+    echo "$Q Installing DE Packages & Some Extras."
     pacman -S --noconfirm xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji materia-gtk-theme firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us git thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman
     $X
     $Q
-    git clone [https://aur.archlinux.org/yay.git](https://aur.archlinux.org/yay.git)
+    sudo -u "$NEWUSER" git clone [https://aur.archlinux.org/yay.git](https://aur.archlinux.org/yay.git)
     cd yay
-    makepkg -si
+    sudo -u "$NEWUSER" makepkg -si
     cd /minui
-    chmod +x /minui/execute.sh
-    sh execute.sh
+    sh x.sh
     rm -rf /minui
     sudo -u "$NEWUSER" xfconf-query -c xsettings -p /Net/ThemeName -s "Materia-dark-compact" --create -t string
     sudo -u "$NEWUSER" xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus-Dark" --create -t string
@@ -596,7 +566,7 @@ while true; do
     ufw default allow outgoing
 EOF
     while true; do
-    read -r -p "[$P@$Q $U]# MinimalistUI finished installing, enter '1' to exit (make sure to unplug the installation media too after this)" R
+    read -r -p "$Q MinimalistUI finished installing, enter '1' to exit (make sure to unplug the installation media too after this)" R
     if [[ "$R" =~ ^[1]$ ]]; then
     umount -R /mnt
     exit
