@@ -3,17 +3,17 @@ based on Arch, inspired by EndeavourOS and archinstall command. A small Arch aut
 
 A.) possible installable packages:
 
-- pacstrap (important base packages): base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs fzf bat zoxide lf thefuck ntfs-3g unzip p7zip unrar gufw ufw neovim squashfs-tools intel-ucode amd-ucode xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon
+- pacstrap (important base packages): base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs fzf bat zoxide lf thefuck ntfs-3g unzip p7zip unrar gufw ufw neovim squashfs-tools sudo git intel-ucode amd-ucode xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon
 
-- pacman: xfce4 volctl pasystray thunar flatpak kvantum mpv tint2 papirus-icon-theme xfce4-battery-plugin xfce4-notifyd xfce4-pulseaudio-plugin fastfetch cpufetch htop pipewire-alsa pipewire-pulse pipewire-jack pipewire bash-completion mpd kitty ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji materia-gtk-theme firefox udisks2 gvfs network-manager-applet pavucontrol firefox-i18n-en-us git thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman
+- core (true minimalistui) packages (extra configs from https://github.com/xv7ranker/minimalistui-extras/ may be needed): (pacman: pasystray thunar pipewire-alsa pipewire-pulse pipewire-jack pipewire ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji firefox pavucontrol firefox-i18n-en-us xorg-xinit tint2 nwg-look rofi dunst feh)
 
-- extra installables: (pacman: kate gparted xarchiver xfce4-screenshooter xfce4-mount-plugin xfce4-mpc-plugin xfce4-clipman-plugin lutris steam mangohud xfce4-whiskermenu-plugin firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso) (flatpak: sober zoom zapzap telegram)
+- extra installables: (pacman: kate gparted lutris steam mangohud firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman network-manager-applet udisks2 gvfs kitty fastfetch cpufetch htop papirus-icon-theme flatpak mpd materia-gtk-theme mpv bash-completion kvantum labwc swaybg mako waybar fuzzel grim slurp wl-clipboard kanshi playerctl) (flatpak: sober zoom zapzap telegram)
 
 B.) .iso Building tools:
 - mkiso.sh (to automate minimalistui.iso creations (modifyable if you want to)): https://github.com/xv7ranker/minimalistui-extras/blob/main/mkiso.sh
 - mkisosfs.sh (to automate common .iso and .sfs file creation): https://github.com/xv7ranker/minimalistui-extras/blob/main/mkisosfs.sh
 - 'xorriso', 'cdrtools', 'squashfs-tools', and 'git' as dependencies.
-- both commands are usable after installing MinimalistUI.
+- both commands are usable after installing MinimalistUI OR after installing the .sh files from https://github.com/xv7ranker/minimalistui-extras.
 
 C.) Legend (For release tags):
 - 'X' for Xperimental (Useable, but likely to have xperimental features that newer releases may have in the future. Simmilar to 'beta' version of games. Tends to be unstable / buggy if unlucky. These versions are very unlikely to show up since experimental features are likely to be heavily tested myself, then put into newer releases as a new feature.)
@@ -61,3 +61,6 @@ E.) Credits to:
 - Lifewire (For boot priority/boot order modification (https://www.lifewire.com/change-the-boot-order-in-bios-2624528)), and
 - GEEKrar (For youtube rufus tutorial (https://www.youtube.com/@Geekrar).
 
+F.) Common Devlog:
+291225: modifying MinimalistUI to be lighter (now not based on XFCE4, but is an indepentent UI by itself), and experiments to include offline support for the .iso.
+--- every devlog(s) before / after this may be spotted in releases as release devlog ---
