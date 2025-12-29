@@ -1,5 +1,5 @@
 # MinimalistUI
-based on Arch, inspired by EndeavourOS and archinstall command. A small Arch automatic install script project that installs and targets minimalist, simple, and light Dark-themed UI. This project is still WIP (tho predict 95% useable).
+based on Arch, inspired by EndeavourOS and archinstall command. A small Arch automatic install script project that installs and targets minimalist, simple, and light-weight Dark-themed UI, Now available as an independent, CLI driven UI. These project is still WIP, tho most of it are usable.
 
 A.) possible installable packages:
 
