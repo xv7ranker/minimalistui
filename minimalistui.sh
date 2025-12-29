@@ -251,12 +251,12 @@ case $RI in
 "") continue ;;
 0) RI="5" && T && break
 cat <<'EOF' > /etc/pacman.conf
-[extrarepos]
-SigLevel = Optional TrustAll
-Server = file:///minui/extrarepos
 [localrepos]
 SigLevel = Optional TrustAll
 Server = file:///var/cache/pacman/pkg/
+[extrarepos]
+SigLevel = Optional TrustAll
+Server = file:///minui/extrarepos
 EOF
 ;;
 1) I && if [[ "$?" == "1" ]]; then
