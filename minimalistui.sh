@@ -1,83 +1,179 @@
 #!/bin/bash
-S() {
-    echo -e "> --- SUSPENDING SCRIPT ---"
-    echo -e "> You are now in a temporary subshell."
-    echo -e "> Type 'exit' or press Ctrl+D to return to minimalistui.sh script."
-    # Launch a new interactive bash session
-    /bin/bash --rcfile <(echo "export PS1='(Installer-Subshell) \w # '")
-    echo -e "> --- RESUMING SCRIPT ---\n"
+if [[ -z "$NULL" ]]; then #0.5th->8th Stage, The Whole MinimalistUI.sh script, 677 Lines Total, ~25,7 KiB (26.311 bytes)
+if [[ -z "$NULL" ]]; then #0.5th Stage, Functions (Used functions: A->H), 283 Lines, (L3=>L286)
+A() { #A function for Temporary leave
+while true; do
+local opt=$1
+[[ "$opt" == "1" ]] && echo "> Welcome to special developer environtment" && echo "> You can enter this very environtment by entering 'D' on every major Stage ('> fdisk:' for e.g.)" && read -r -p "> See special Options:
+> '0' to exit,
+> '9' to exit to subshell,
+> '1' to see every used variabels,
+> '2' to see every used functions,
+> '3' to modify this script temporarily and return back here,
+> '4' to apply temporary modifications permanently,
+> Notes: If you are using kate, click the triangle on the left side of the command lines to hide 'if' & 'while true; do' arguments, close the:
+'if [[ -z "$NULL" ]]; then' arguments to minimize codes per stage.
+> answer: " R
+case $R in
+[Dd]) echo "> Its not usable here duh... you are already in the developer environtment." && continue;;
+0) break && A 9;;
+1) echo "> A->F" && continue;;
+2) echo "> A->F" && continue;;
+3) sudo nano "$0" && exec sudo "$0" "$@" && A 1;;
+esac
+done
+[[ "$opt" == "9" ]] && echo -e "> --- SUSPENDING SCRIPT ---" && echo -e "> You are now in a temporary subshell." && echo -e "> Type 'exit' or press Ctrl+D to return to minimalistui.sh script." && /bin/bash --rcfile <(echo "export PS1='(Installer-Subshell) \w # '") && echo -e "> --- RESUMING SCRIPT ---"
 }
 
-I() {
-    echo "> Trying to ping ping.archlinux.org."
-    curl -I http://google.com > /dev/null 2>&1
-    if [[ "$?" == "0" ]]; then
-        echo "> Internet access obtained, continuing."
+B() { #B function for networkings
+local opt=$1
+${opt:-0}
+if [[ "$opt" == 0* ]]; then
+echo "> Trying to ping ping.archlinux.org."
+curl -I http://google.com > /dev/null 2>&1
+if [[ "$?" == "0" ]]; then
+    echo "> Internet access obtained, continuing."
 cat <<'EOF' > /etc/pacman.conf
 [core]
-Include = /etc/pacman.d/mirrorlis
+Include = /etc/pacman.d/mirrorlist
 [extra]
 Include = /etc/pacman.d/mirrorlist
 EOF
-        T=$(curl -s https://ipapi.co/timezone/)
-        echo "> Your Timezone: '$T'"
-        timedatectl set-timezone $T
-        echo "> Current date & time:"
-        timedatectl
-    else
-        echo "> Internet access unobtained, going back."
-        return 1
-    fi
+    TIMEZONE=$(curl -s https://ipapi.co/timezone/)
+    echo "> Your Timezone: '$TIMEZONE'"
+    timedatectl set-timezone $TIMEZONE
+    echo "> Current date & time:"
+    timedatectl
+else
+    echo "> Internet access unobtained, going back."
+    return 1
+fi
+elif [[ "$opt" == 1* ]]; then
+    while true; do
+    echo "> Time will be synchronized when conected to internet, setting timezone."
+    read -r -p "> '1' to list timezones (default), and type the timezones to set the timezone (Area/Location (e.g. Asia/Jakarta)): " TIMEZONE
+    TIMEZONE="${TIMEZONE:-1}"
+    [[ "$TIMEZONE" == 1* ]] && timedatectl list-timezones > t.txt
+    echo "Use 'q' button to Quit." >> t.txt
+    less timezones.txt
+    rm -rf timezones.txt && continue
+    [[ ! "$TIMEZONE" == 1* ]] && timedatectl set-timezone $TIMEZONE && break && done
+cat <<EOF >> /etc/pacman.conf
+[local]
+SigLevel = Optional TrustAll
+Server = file:///var/cache/pacman/pkg/
+[extralocal]
+SigLevel = Optional TrustAll
+Server = file:///minui/repos/pacman
+EOF
+    export OFFLINE="1"
+fi
+export A=""
 }
 
-N() {
-    local dev=$1
-    local num=$2
+C() { #C is for font and keyboard layout change
+while true; do
+read -r -p "> Change your keyboard layout to:
+> '0' to skip,
+> '1' to see all options,
+> 'us' to set keyboard layout to US (d),
+> 'de-latin1' to set keyboard layout to German.
+> answer: " R
+A=${R:-us}
+localectl list-keymaps > k.txt
+case $K in
+0) rm -rf k.txt;;
+1) less k.txt
+echo "press 'q' to exit" >> k.txt
+rm -rf k.txt
+continue;;
+"") continue;;
+*) if grep -qx "$A" k.txt; then
+    loadkeys "$A"
+    echo "> Layout '$A' loaded."
+    rm -rf k.txt
+else
+    echo "! ERROR: Keyboard layout '$A' not found, try again."
+    rm -rf k.txt
+    continue
+fi;;
+esac
+while true; do
+read -r -p "> Change your console font to:
+> '0' skip,
+> '1' see all options,
+> 'ter-132b' for HiDPI screens (arch installation guide recomendation).
+> answer: " R
+case $R in
+0) break 2;;
+1) ls /usr/share/kbd/consolefonts > f.txt
+echo "> Ignore files starting with 'README.'."
+echo "When changing font, add the format of the font you want to change to, like if you want to change to iso01.08, you should write iso01.08.gz." >> f.txt
+echo "Use 'q' button to Quit." >> f.txt
+less f.txt
+rm -rf f.txt
+continue;;
+"") continue ;;
+*) FONT_BASE_PATH="/usr/share/kbd/consolefonts/$R"
+if [ -f "$FONT_BASE_PATH" ] || [ -f "$FONT_BASE_PATH.psf.gz" ] || [ -f "$FONT_BASE_PATH.psf" ]; then
+    setfont $R
+    break 2
+else
+    echo "! ERROR: Console font '$R' not found, try again."
+    continue
+fi;;
+esac
+done
+done
+export A=""
+}
+
+D() { #D function for devices & partition stuffs
+local opt=$1
+if [[ -z "$DEVICE" && -z "$ESPDIR" && -z "$ROOTDIR" || -z "$opt" ]]; then
+    declare -A dev
+    while read -r path; do
+    dev["$path"]="$path"
+    done < <(lsblk -n -l -d -y -p -o NAME)
+    count=${#dev[@]}
+    if [[ "$count" -gt 1 ]]; then
+        echo "> Choose one of your devices that MinimalistUI will be installed to:"
+        select choice in "${!dev[@]}"; do
+        if [[ -z $choice ]]; then
+            read -r -p "> Are you sure you want to skip? '1' for yes (Default), '0' for no: " R
+            [[ ${R:-1} == 1* ]] && break || continue
+        fi
+        if [[ -n $choice && $choice ]]; then
+            export DEVICE=${dev[$choice]}
+            break
+            else
+            continue
+        fi
+        done
+        elif [[ "$count" -eq 1 ]]; then
+        export DEVICE="${!dev[@]}"
+    fi
+elif [[ "$opt" == 1* ]]; then
+    local dev=$2
+    local num=$3
     if [[ $dev == *[0-9] ]]; then
         echo "${dev}p${num}"
     else
         echo "${dev}${num}"
     fi
-# Usage:
-# DD=$(NON "$D" "$N")
-}
-
-D() {
-declare -A dev
-while read -r path; do
-dev["$path"]="$path"
-done < <(lsblk -n -l -d -y -p -o NAME)
-count=${#dev[@]}
-if [[ "$count" -gt 1 ]]; then
-echo "> Choose one of your devices that MinimalistUI will be installed to:"
-select choice in "${!dev[@]}"; do
-if [[ -z $choice ]]; then
-read -r -p "> Are you sure you want to skip? '1' for yes (Default), '0' for no: " R
-[[ ${R:-1} == 1* ]] && break || continue
-fi
-if [[ -n $choice && $choice ]]; then
-export D=${dev[$choice]}
-break
-else
-continue
-fi
-done
-elif [[ "$count" -eq 1 ]]; then
-export D="${!dev[@]}"
 fi
 }
 
-E() {
+E() { #E Is for Wifi Stuffs
 iwctl device wlan0 set-property Powered on > /dev/null 2>&1
 iwctl station wlan0 scan > /dev/null 2>&1
-if [[ "$LY" == "1" ]]; then
-iwctl station wlan0 scan && iwctl station wlan0 get-networks
-export LY=""
-fi
-if [[ "$LY" == "2" ]]; then
-read -r -p "> Input Hidden Wifi SSID: " choice
-export LY=""
-fi
+read -r -p "> Is your wifi hidden (y/n)" R
+[[ ${R:-y} == [yY]* ]] && read -r -d '' A <<EOF
+iwctl station wlan0 connect-hidden "$SSID"
+EOF
+[[ ${R:-y} == [nN]* ]] && read -r -d '' A <<EOF
+iwctl station wlan0 connect "$SSID" "$SEC"
+EOF
 declare -A wifi
 local choice=()
 while read -r line; do
@@ -92,12 +188,12 @@ done < <(iwctl station wlan0 get-networks | awk 'NR > 4')
 echo "> Choose a WiFi network:"
 select choice in "${!wifi[@]}"; do
 if [[ -z $choice ]]; then
-read -r -p "> Are you sure you want to skip? '1' for yes (Default), '0' for no: " R
-[[ ${R:-1} == 1* ]] && break || continue
+    read -r -p "> Are you sure you want to skip? (y(d)/n): " R
+    [[ ${R:-y} == [yY]* ]] && break || continue
 fi
 export SSID="$choice"
 local SEC="${wifi_security[$choice]}"
-iwctl station wlan0 connect "$SSID"
+B="eval $A"
 if [ $? -eq 0 ]; then
     echo "> Successfully connected to $SSID"
 else
@@ -105,90 +201,51 @@ else
 fi
 break
 done
+export A=""
 }
 
-C() {
+F() { #F Function for partitioning stage
+echo "> fdisk:
+> '1' list disks and partitions,
+> '2' create an Empty Partition,
+> '3' create an ESP (GPT, part. no. 1),
+> '4' create a Root Partition ($CB, part. no. $G),
+> '5' create an Empty partition (DIY, interactive),
+> '6' create a swapfile (After Root Partition & ESP),
+> '7' finish (use after finished creating partitions),
+>> current size format used: $CA (enter 'b' to change),
+>> current partition format style: $CB (enter 'b' to change),
+>>> Notes: Create ESP first before creating Root partition for GPT users, and for MBR users, skip creating ESP"
+read -r -p "> answer: " FDISK
+export FDISK=$FDISK
+}
+
+G() { #G Function to create swapfile (Swap partition alternative)
 while true; do
-read -r -p "> Change your keyboard layout to:
-> '0' to skip,
-> '1' to see all options,
-> 'us' to set keyboard layout to US (Default),
-> 'de-latin1' to set keyboard layout to German.
-> answer: " RK
-K=${RK:-us}
-localectl list-keymaps > k.txt
-case $K in
-0) rm -rf k.txt;;
-1) less k.txt && echo "press 'q' to exit" >> k.txt && rm -rf k.txt && continue;;
-"") continue;;
-*) if grep -qx "$K" k.txt; then
-loadkeys "$K"
-echo "> Layout '$K' loaded."
-rm -rf k.txt
-else
-echo "! ERROR: Keyboard layout '$K' not found, try again."
-rm -rf k.txt
-continue
-fi
-esac
-while true; do
-read -r -p "> Change your console font to:
-> '0' skip,
-> '1' see all options,
-> 'ter-132b' for HiDPI screens (arch installation guide recomendation).
-> answer: " C
-case $C in
-0) break 2 ;;
-1) ls /usr/share/kbd/consolefonts > f.txt && echo "> Ignore files starting with 'README.'." && echo "When changing font, add the format of the font you want to change to, like if you want to change to iso01.08, you should write iso01.08.gz." >> f.txt && echo "Use 'q' button to Quit." >> f.txt && less f.txt && rm -rf f.txt && continue ;;
-"") continue ;;
-*) FONT_BASE_PATH="/usr/share/kbd/consolefonts/$C"
-if [ -f "$FONT_BASE_PATH" ] || [ -f "$FONT_BASE_PATH.psf.gz" ] || [ -f "$FONT_BASE_PATH.psf" ]; then
-setfont $C
-break 2
-else
-echo "! ERROR: Console font '$C' not found, try again."
-continue
-fi ;;
-esac
-done
+read -r -p "> Do you want to create a swapfile (Alternative to swap partition)? (y/n)" R
+[[ -z "$R" ]] && continue
+read -r -p "> How much (In $CA) would you like to allocate to your swapfile? (d=8) (no .0 value) " SWAPALLOC
+SWAPALLOC=${SWAPALLOC:-8}
+[[ "$R" == [yY]* && -z "$BTRFS" ]] && read -r -d SWAPFILE <<'EOF'
+local SWAPSIZE=$(( $SWAPALLOC * 1024 ))
+dd if=/dev/zero of=/minui/swap/swapfile bs=1M count=$SWAPSIZE status=progress && chmod 600 /minui/swap/swapfile && mkswap /minui/swap/swapfile && swapon /minui/swap/swapfile && echo "/minui/swap/swapfile none swap defaults 0 0" >> /etc/fstab
+EOF
+[[ "$R" == [yY]* && ! -z "$BTRFS" ]] && read -r -d SWAPFILE <<'EOF'
+touch /minui/swap/swapfile && chattr +C /minui/swap/swapfile && fallocate -l ${SWAPALLOC}G /minui/swap/swapfile && chmod 600 /minui/swap/swapfile && mkswap /minui/swap/swapfile && swapon /minui/swap/swapfile && echo "/swap/swapfile none swap defaults 0 0" > /etc/fstab
+EOF
+break
 done
 }
 
-T() {
-while true; do
-echo "> Time will be synchronized when conected to internet, setting timezone."
-read -r -p "> '1' to list timezones (default), and type the timezones to set the timezone (Area/Location (e.g. Asia/Jakarta)): " TA
-T="${TA:-1}"
-[[ "$T" == 1* ]] && timedatectl list-timezones > t.txt && echo "Use 'q' button to Quit." >> t.txt && less timezones.txt && rm -rf timezones.txt && continue || timedatectl set-timezone $T && break && done
-}
-
-R() {
-read -r -p "> fdisk:
-> '1' see all options,
-> '2' list partitions and disks,
-> '3' create Empty Partition,
-> '4' create ESP (GPT, part. no. 1),
-> '5' create Root Partition (GPT/MBR, part. no. (1 for mbr, 2 for gpt)),
-> '6' create Empty partition (DIY, interactive),
-> '7' create Subvolumes (for btrfs),
-> '8' finish (use after finished creating partitions),
-> current size format used: '$B' (enter 'b' to change),
-> notes: create ESP first before creating Root partition for GPT users, and for MBR users, skip creating boot partition / ESP
-> answer: " RA
-return $RA
-}
-
-L() {
+H() { #H Function to create a shell script to automate arch-chroot command
 cat <<EOF > /mnt/v.sh
-export T="$T"
-export H="$H"
-export NEWUSER="$NEWUSER"
-export NEWPASS="$NEWPASS"
-export RI="$RI"
-export X="$X"
-export W="$W"
-export P="$P"
-export LO="$LO"
+declare -r T="$TIMEZONE"
+declare -r H="$HOSTNAME"
+declare -r NEWUSER="$NEWUSER"
+declare -r NEWPASS="$NEWPASS"
+declare -r OFFLINE="$OFFLINE"
+declare -r BOOTLOADER="$BOOTLOADER"
+declare -r SWAPFILE="$SWAPFILE"
 EOF
 cat <<'EOF' > /mnt/o.sh
 #!/bin/bash
@@ -197,7 +254,7 @@ echo "> Entering chroot environtment."
 echo "$H" > /etc/hostname
 ln -sf /usr/share/zoneinfo/"$T" /etc/localtime
 hwclock --systohc
-[[ -z "$LO" ]] && eval "$LO" || echo "> Skipping swapfile creation."
+[[ -z "$SWAPFILE" ]] && eval "$SWAPFILE" || echo "> Skipping swapfile creation."
 echo "> Creating account."
 useradd -m -G wheel,audio,video,storage,power -s /bin/bash "$NEWUSER"
 echo "> You can modify root account password using command "passwd" while being root user or "sudo passwd" if you are using user account and you didnt know what your root account password is."
@@ -210,377 +267,341 @@ mkdir /home/"$NEWUSER"/media && ln -sf /run/"$NEWUSER" /home/"$NEWUSER"/media
 chown -R "$NEWUSER":"$NEWUSER" /home/"$NEWUSER"
 chmod +x /home/"$NEWUSER"/.xinitrc
 chmod +x /home/"$NEWUSER"/.bash_profile
-[[ "$RI" == "5" ]] && echo "
+[[ ! -z "$X" ]] && echo "
 [Settings]
 gtk-theme-name=Adwaita-dark
 gtk-icon-theme-name=Adwaita
 gtk-font-name=Noto Sans 10
 gtk-cursor-theme-name=Adwaita" > /home/$NEWUSER/.config/gtk-3.0/settings.ini
-[ -d "/minui" ] && cd /minui && sh x.sh && rm -rf /minui
-eval "$P" && echo "> Installing DE Packages & Extras (If choosed)."
-[[ ! "$RI" == "5" ]] && pacman -Sy --noconfirm pasystray thunar pipewire-alsa pipewire-pulse pipewire-jack pipewire ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji firefox pavucontrol firefox-i18n-en-us xorg-xinit tint2 nwg-look rofi dunst feh && eval "$X"
-eval "$W"
+[ -d "/minui" ] && sh /minui/x.sh && rm -rf /minui/flatpak
+eval "$BOOTLOADER" && echo "> Installing Packages."
+sh /extrapacman.sh
+sh /extraflatpak.sh
 rm -rf /v.sh
 EOF
 chmod +x /mnt/o.sh
 }
-
-#Used functions: R D T N E I S C L
-
+fi
+if [[ -z "$NULL" ]]; then #1st stage, Introduction, 7 Lines (L287=>L294)
+echo "> Shell Script (.sh) to install MinimalistUI."
+echo "> Modified settings will be saved to your new installation."
+echo "> Legend:
+> (d) default option,
+> (y/n(d)) yes/no with no as default value,
+> (y(d)/n) yes/no with yes as default value,"
+fi
+if [[ -z "$NULL" ]]; then # 2nd stage, Sudo check, Font, and Keyboard Layout change, 13 Lines (L295=>L308)
 while true; do
-if [[ $EUID -ne 0 ]]; then # 1st stage, sudo
-echo "! ERROR: Must run with sudo." && read -r -p "> Rerun with sudo? (y/n): " R
-[[ ${R:-y} == [yY]* ]] && exec sudo "$0" "$@" || echo "> Exiting." && exit 1
+if [[ $EUID -ne 0 ]]; then
+    read -r -p "! ERROR: Must run with sudo. Rerun with sudo? (y(d)/n): " R
+    R=${R:-y}
+    [[ $R == [dD]* ]] && A 1
+    [[ $R == [yY]* ]] && exec sudo "$0" "$@" || echo "! Exiting." && exit 1
 else
-break
-fi && done
-
-#1st stage, start
-echo "> Shell Script (.sh) to install MinimalistUI."  && read -r -p "> Do you want to change console keyboard layout and font? (Modified settings will be saved to your new installation.) (y/n): " R
-[[ ${R:-n} == [yY]* ]] && C || echo "> Not Changing Keyboard Layout (Default: US) and Console Font." #2nd stage, cfk
-
-while true; do #3rd stage, networking
+    break
+fi
+done
+read -r -p "> Do you want to change console keyboard layout and font? (y/n(d)): " R
+[[ ${R:-n} == [yY]* ]] && C || echo "> Not Changing Keyboard Layout (Default: US) and Console Font."
+fi
+if [[ -z "$NULL" ]]; then #3rd stage, Networking, 21 Lines (L309=>L330)
+while true; do
 read -r -p "> Networking:
-> '1' use ethernet,
-> '2' use wifi (Heavily WIP and DIY.),
+> '1' use wifi,
+> '2' use ethernet,
 > '3' use wwan (WIP(???)),
-> '0' to skip networking (Will install CLI-version of MinimalistUI (WIP)).
-> answer: " RI
-case $RI in
-[Dd]) echo "> Debugging purpose only." && break;;
-"") continue ;;
-0) RI="5" && T && break
-cat <<'EOF' > /etc/pacman.conf
-[localrepos]
-SigLevel = Optional TrustAll
-Server = file:///var/cache/pacman/pkg/
-[extrarepos]
-SigLevel = Optional TrustAll
-Server = file:///minui/extrarepos
-EOF
-;;
-1) I && if [[ "$?" == "1" ]]; then
-continue
+> '0' to skip networking (Installs offline version of everything in the script (likely outdated by a little bit)).
+> answer: " NET
+if [[ "$?" == "0" ]]; then
+    break
 else
-break
-fi;;
-3) I && if [[ "$?" == "1" ]]; then
-continue
-else
-break
-fi;;
-2) while true; do
-read -r -p "> iwctl:
-> '1' see all options,
-> '2' connect to network / wifis (wlan0),
-> '3' connect to hidden network / wifis (wlan0),
-> '4' see all connectable connections / wifis (wlan0),
-> '5' enter your own command (input nothing to return here),
-> 'r' return to earlier question.
-> answer: " W
-case $W in
-1) iwctl help > iwctl.txt && echo "Use 'q' button to Quit." >> iwctl.txt && echo "> press 'y' to read iwctl.txt" && less iwctl.txt -F && rm -rf iwctl.txt && continue ;;
-2) E && continue;;
-3) LY="2" && E && continue;;
-4) LY="1" && E && continue;;
-5) read -r -p "> iwctl " R && iwctl $R > /dev/null 2>&1 && continue ;;
-[Ff]) break 1 && continue;;
+    continue
+fi
+case $NET in
+[Dd]) A 1 && break;;
 "") continue ;;
+0) B 1 && break;;
+1) E && B;;
+2) B;;
+3) B;;
 esac
-I
-if [[ "$?" == "1" ]]; then
-continue
-else
-break 2
 fi
-done;;
-esac && done
-
-
-if [[ -z "$D" ]]; then #4th stage, partitioning
-D
+if [[ -z "$NULL" ]]; then #4th stage, 1st stage partitioning, 61 Lines (L331=>L392)
+if [[ -z "$DEVICE" ]]; then
+    D 0
 fi
-
 echo "!!! Partitioning stage reached. You will be asked to Wipe your storage or no,"
 echo "!!! '1' to wipe your storage (incl. partitions and datas), "
 echo "!!! '0' to not (you can use your earlier partitioning scheme with this option)."
 while true; do
-read -r -p "!!! Do You Want To Wipe Out Your Storage To Continue? '1' for yes, '0' for no (Default): " R
-if [[ ${R:-0} == 0* ]]; then
-RA="A"
-B="1"
-break
+read -r -p "!!! Do You Want To Wipe Out Your Storage To Continue? (y/n(d)): " R
+if [[ ${R:-n} == [nN]* ]]; then
+    while true; do
+    read -r -p "> Do You Wanna Use Your Earlier Partition Setup? (y/n): " R
+    [[ "$R" == [yY]* ]] && FDISK="Z" && break 1 || FDISK="" && break 1
+    done
+    break
 else
-while true; do
-read -r -p "> Do you want to exit this script temporarily to move important data? '1' for yes, '0' to exit / skip (Default). " R
-if [[ ${R:-0} == 0* ]]; then
-break
-else
-S
+    while true; do
+    read -r -p "> Do you want to exit this script temporarily to move important data? (y/n(d)): " R
+    if [[ ${R:-n} == [nN]* ]]; then
+        break
+    else
+        A 9
+    fi
+    break
+    done
+    while true; do
+    read -r -p "!!!!! Are You Sure That You Want To Wipe Out Your Disk? (y/n(d)): " R
+    if [[ ${R:-n} == [nN]* ]]; then
+        read -r -p "> Do You Wanna Use Your Earlier Partition Setup? (y/n): " R
+        [[ "$R" == [yY]* ]] && FDISK="Z" && break 1 || FDISK="" && break 1
+        break
+    else
+        echo "!!!!! Wiping '$DEVICE'"
+        sudo wipefs -a $DEVICE && break
+    fi
+    done
 fi
-continue
 done
 while true; do
-read -r -p "!!!!! Are You Sure That You Want To Wipe Out Your Disk? '1' for yes, '0' for no (Default): " R
-if [[ ${R:-0} == 0* ]]; then
-RA="A"
-B="1"
-break
-else
-echo "!!!!! Wiping '$D'"
-sudo wipefs -a $D && break
-fi
-done
-fi
-
-while true; do
-read -r -p "> In what size format would you like your new partitions be made? (Default=GiB)
-> '1' use MiB,
-> '2' use GiB,
-> '3' use TiB.
-> answer: " R
-case $R in
-1) P="${S}M" && B="MiB" && O="M" && break;;
-3) P="${S}T" && B="TiB" && O="T" && break;;
-*) P="${S}G" && B="GiB" && O="G" && break;;
-"") continue;;
-esac && done
-
-while true; do
-if [[ ! "$RA" == "A" ]]; then
-export $B && R
-elif [[ "$RA" == "8" ]]; then
-if [[ -z "$ESPDIR" ]]; then
-if [[ "$RR" == "1" ]]; then
-while true; do
-read -r -p "> Enter the full path for the ESP (e.g., /dev/sda1) ('1' to see all options): " ESPDIR
-case $ESPDIR in
-"") continue;;
-1) lsblk && continue;;
-*) break;;
-esac && done
-else
-break && fi && fi && fi && done
-if [ -z "$ROOTDIR" ]; then
-while true; do
-read -r -p "> Enter the full path for the ROOT partition (e.g., /dev/sda2): " ROOTDIR
-case $ROOTDIR in
-"") continue;;
-1) lsblk && continue;;
-*) break;;
-esac && done && fi
-read -r -p "> Are these paths correct? (y/n): " R
-case $R in
-[yY]*) break ;;
-*) RA=""
-continue ;; # Re-enter partition stage
-esac;;
-elif ! [[ "$RA" == "8" ]]; then
-case $RA in
-[Bb])  while true; do
 read -r -p "> In what size format would you like your new partitions be made?
 > '1' use MiB,
-> '2' use GiB,
+> '2' use GiB (d),
 > '3' use TiB.
+> answer: " SIFORMT
+SIFORMT=${SIFORMT:-2}
+if [[ "$R" == 2* ]]; then
+    CA="GiB" && B="G" && break
+elif [[ "$R" == 1* ]]; then
+    CA="MiB" && B="M" && break
+elif [[ "$R" == 3* ]]; then
+    CA="TiB" && B="T" && break
+fi
+done
+while true; do
+read -r -p "> GPT (1(d)) or MBR (0) " GPT
+GPT=${GPT:-1}
+case $GPT in
+0) F="83" && E="dos" && CB="GPT" && break;;
+1) F="0FC63DAF-8483-4772-8E79-3D69D8477DE4" && E="gpt" && CB="MBR" && break;;
+*) continue;;
+esac && done
+fi
+if [[ -z "$NULL" ]]; then #5th stage, 2nd stage partitioning, 162 Lines (L393=>L556)
+while true; do
+if [[ "$FDISK" == "Z" ]]; then
+if [[ -z "$ESPDIR" ]]; then
+    while true; do
+    if [[ -z "$ESPDIR" ]]; then
+        read -r -p "> Enter the full path for the ESP (e.g., /dev/sda1) ('1' to see all options): " ESPDIR
+        [[ -z "$ESPDIR" ]] && continue
+        [[ "$ESPDIR" == 1* ]] && lsblk && continue || break 2
+    fi
+fi
+if [[ -z "$ROOTDIR" ]]; then
+    while true; do
+    read -r -p "> Enter the full path for the ROOT partition (e.g., /dev/sda2): " ROOTDIR
+    [[ -z "$ROOTDIR" ]] && continue
+    [[ "$ROOTDIR" == 1* ]] && lsblk && continue || break 2
+    break 1
+    done
+fi
+read -r -p "> Are these paths correct? (y/n)
+> Root Partition: $ROOTDIR
+> EFI System Partition: $ESPDIR
 > answer: " R
-case $R in
-1) P="${S}M" && B="MiB" && O="M" && break;;
-2) P="${S}G" && B="GiB" && O="G" && break;;
-3) P="${S}T" && B="TiB" && O="T" && break;;
+[[ "$R" == [yY]* ]] && break || continue && FDISK=""
+done
+elif [[ ! "$FDISK" == "Z" ]]; then
+FDISK="" && export CA CB G && F && case $FDISK in
+
+[bB])
+while true; do
+read -r -p "> In what size format would you like your new partitions be made?
+> '1' use MiB,
+> '2' use GiB (d),
+> '3' use TiB.
+> answer: " SIFORMT
+SIFORMT=${SIFORMT:-2}
+if [[ "$R" == 2* ]]; then
+    CA="GiB" && B="G" && break
+elif [[ "$R" == 1* ]]; then
+    CA="MiB" && B="M" && break
+elif [[ "$R" == 3* ]]; then
+    CA="TiB" && B="T" && break
+fi
+done
+while true; do
+read -r -p "> GPT (1(d)) or MBR (0) " GPT
+GPT=${GPT:-1}
+case $GPT in
+0) G="1" && F="83" && E="dos" && CB="MBR" && break;;
+1) G="2" && F="0FC63DAF-8483-4772-8E79-3D69D8477DE4" && E="gpt" && CB="GPT" && break;;
 *) continue;;
 esac && done;;
-1) fdisk -h > fdisk.txt && echo "Use 'q' button to Quit." >> fdisk.txt && less fdisk.txt && rm -rf fdisk.txt && continue ;;
-2) lsblk && continue ;;
-3) while true; do
-read -r -p "> GPT (1) or MBR (2) " R
-case $R in
-1) T="0FC63DAF-8483-4772-8E79-3D69D8477DE4" && L="gpt" && break;;
-2) T="83" && L="dos" && break;;
-*) continue;;
-esac && done && while true; do
-read -r -p "> How much (in $B) would you like to allocate to your new partition? " S
-[[ -z "$S" ]] && continue
-read -r -p "> What partition number would you give to your new partition? " N
-[[ -z "$N" ]] && continue
+
+1) lsblk && continue ;;
+
+2)
+while true; do
+read -r -p "> What name would you like to give to your new partition? (d=NEWPART)" J
+J=${J:-NEWPART}
+read -r -p "> How much (in $CA) would you like to allocate to your new partition? " H
+[[ -z "$H" ]] && continue
+read -r -p "> What partition number would you give to your new partition? " G
+[[ -z "$G" ]] && continue
 done
-export D L O P T N
-sudo sfdisk $D --append --force --quiet <<EOF
-label: $L
-unit: $O
-$N : size=$S, type=$T, name="DIR"
+I=${H}$B
+export DEVICE E B I F G J
+sudo sfdisk $DEVICE --append --force --quiet <<EOF
+label: $E
+unit: $B
+$G : size=$I, type=$F, name="$J"
 EOF
-DD=$(N "$D" "$N")
+NEWPART=$(D 1 "$DEVICE" "$G")
 while true; do
 read -r -p "> Choose the format for your new partition
 > '1' F2FS, recomended for ssds... supposedly,
 > '2' BTRFS, modern, feature-rich...,
 > '3' XFS, recomended for big files... supposedly,
-> '4' EXT4, classic...
-> '5' FAT12.
-> '6' FAT16.
-> '7' FAT32
-> answer: " F
-case $F in
-1) FM="mkfs.f2fs" && break;;
-2) FM="mkfs.btrfs" && break;;
-3) FM="mkfs.xfs" && break;;
-4) FM="mkfs.ext4" && break;;
-5) FM="mkfs.fat -F 12" && break;;
-6) FM="mkfs.fat -F 16" && break;;
-7) FM="mkfs.fat -F 32" && break;;
-*) continue ;;
-esac && done
-echo "> Creating partition at: $DD" && $FM $DD;;
-4) while true; do
-read -r -p "> How much (in $B) would you like to allocate to your new partition? " S
-[[ -z "$S" ]] && continue
-done
-export D O P
-sudo sfdisk $D --append --force --quiet <<EOF
-label: gpt
-unit: $O
-1 : size=$P, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, name="ESPDIR"
-EOF
-ESPDIR=$(N "$D" "1")
-while true; do
-echo "$Q Choose the fat size for ESP (12, 16, and 32 (32 is Recomended)) and choose the partition"
-read -r -p "$Q Which fat format would you like to use? (Default=fat32)
-> '1' FAT12.
-> '2' FAT16.
-> '3' FAT32
+> '4' EXT4, classic...,
+> '5' FAT12,
+> '6' FAT16,
+> '7' FAT32.
 > answer: " R
 case $R in
-1) FM="mkfs.fat -F 12" && break;;
-2) FM="mkfs.fat -F 16" && break;;
-3 | "") FM="mkfs.fat -F 32" && break;;
-*) continue;;
+1) FORMAT="mkfs.f2fs" && break;;
+2) FORMAT="mkfs.btrfs" && break;;
+3) FORMAT="mkfs.xfs" && break;;
+4) FORMAT="mkfs.ext4" && break;;
+5) FORMAT="mkfs.fat -F 12" && break;;
+6) FORMAT="mkfs.fat -F 16" && break;;
+7) FORMAT="mkfs.fat -F 32" && break;;
+*) continue ;;
 esac && done
-echo "> Creating ESP at: $ESPDIR"
-$FM $ESPDIR;;
-5) while true; do
-read -r -p "> GPT (1) or MBR (2) " RR
-case $RR in
-1) T="0FC63DAF-8483-4772-8E79-3D69D8477DE4" && L="gpt" && N="2" && break;;
-2) T="83" && L="dos" && N="1" && break;;
-*) continue;;
-esac && done
+echo "> Creating partition at: $NEWPART" && $FORMAT $NEWPART && continue;;
+
+3)
 while true; do
-read -r -p "> How much (in $B) would you like to allocate to your new partition? " S
-[[ -z "$S" ]] && continue
+read -r -p "> What name would you like to give to your new partition? (d=ESP)" J
+J=${J:-ESP}
+read -r -p "> How much (in $CA) would you like to allocate to your new partition? " H
+[[ -z "$H" ]] && continue
 done
-export D L O P T N
-sudo sfdisk $D --append --force --quiet <<EOF
-label: $L
-unit: $O
-$N : size=$P, type=$T, name="ROOTDIR"
+I=${H}$B
+export DEVICE B I J
+sudo sfdisk $DEVICE --append --force --quiet <<EOF
+label: gpt
+unit: $B
+1 : size=$I, type=0FC63DAF-8483-4772-8E79-3D69D8477DE4, name="$J"
 EOF
-ROOTDIR=$(N "$D" "$N")
+ESPDIR=$(D 1 "$DEVICE" 1)
 while true; do
-read -r -p "> Choose the format for Root Partition (Default=F2FS)
+read -r -p "> Choose the format for your new partition
+> '1' FAT12,
+> '2' FAT16,
+> '3' FAT32.
+> answer: " R
+case $R in
+1) FORMAT="mkfs.fat -F 12" && break;;
+2) FORMAT="mkfs.fat -F 16" && break;;
+3) FORMAT="mkfs.fat -F 32" && break;;
+*) continue ;;
+esac && done
+echo "> Creating partition at: $ESPDIR" && $FORMAT $ESPDIR && continue;;
+
+4)
+while true; do
+read -r -p "> What name would you like to give to your new partition? (d=ESP)" J
+J=${J:-ESP}
+read -r -p "> How much (in $CA) would you like to allocate to your new partition? " H
+[[ -z "$H" ]] && continue
+done
+I=${H}$B
+export DEVICE E B I F G J
+sudo sfdisk $DEVICE --append --force --quiet <<EOF
+label: $E
+unit: $B
+$G : size=$I, type=$F, name="$J"
+EOF
+ROOTDIR=$(D 1 "$DEVICE" $G)
+while true; do
+read -r -p "> Choose the format for your new partition
 > '1' F2FS, recomended for ssds... supposedly,
 > '2' BTRFS, modern, feature-rich...,
 > '3' XFS, recomended for big files... supposedly,
-> '4' EXT4, classic...
-> answer: " FS
-case $FS in
-1 | "") FM="mkfs.f2fs" && break;;
-2) FM="mkfs.btrfs -f" && break;;
-3) FM="mkfs.xfs" && break;;
-4) FM="mkfs.ext4" && break;;
-*) continue ;;
-esac && done && $FM $ROOTDIR;;
-6) if [[ "$FS" == "2" || "$F" == "2" ]]; then
-mount -o rw $ROOTDIR /mnt && echo "> Mounting Root directory temporarily." && while true; do
-echo "#!/bin/bash" > /x.sh
-read -r -p "> What type of subvolume would you like to create?
-> '1' to create system subvol,
-> '2' to create userdata subvol,
-> '3' to create log subvol,
-> '4' to create swap,
-> '0' to exit,
-> '(enter your own)' to create your own subvol.
+> '4' EXT4, classic...,
 > answer: " R
 case $R in
-1) btrfs subvolume create /mnt/@ && echo "umount /mnt && mount -o subvol=@,compress=zstd $ROOTDIR /mnt" >> /x.sh
-continue;;
-2) btrfs subvolume create /mnt/@home && echo "mkdir -p /mnt/home && umount /mnt && mount -o subvol=@home,compress=zstd $ROOTDIR/home /mnt/home" >> /x.sh && continue;;
-3) btrfs subvolume create /mnt/@log && echo "mkdir -p /mnt/log && umount /mnt && mount -o subvol=@log,compress=zstd $ROOTDIR/log /mnt/log" >> /x.sh && continue;;
-4) btrfs subvolume create /mnt/swapfile && truncate -s 0 /mnt/swapfile && chattr +C /mnt/swapfile && btrfs property set /mnt/swapfile compression none && LO="" && continue;;
-0) chmod +x /x.sh && sh /x.sh && rm -rf /x.sh && break;;
-*) btrfs subvolume create /mnt@"${R}" && echo 'mkdir -p /mnt/"$R" && umount /mnt && mount -o subvol=@"${R}",compress=zstd $ROOTDIR/"$R" /mnt/"$R"' >> /x.sh && continue;;
-"") continue;;
-esac && break && done
-fi && [[ ! "$FS" == "2" || "$F" == "2" ]] echo "!! We spotted that you didnt use 'BTRFS' for your Root Partition, exiting option." && break 1 && continue;;
-7) sudo cfdisk && continue;;
-[A])while true; do
-read -r -p "> Do You Wanna Use Your Earlier Partition Setup? '1' for yes, '0' for no: " R
-case $R in
-1) RA="8" && break 1 && continue;;
-0) RA="" && break 1 && continue;;
-"") continue;;
-esac && done;;
-*) RA="" && continue;;
-esac && fi && done
-#5th stage, 1st install stage
+1) FORMAT="mkfs.f2fs" && break;;
+2) FORMAT="mkfs.btrfs" && BTRFS="1" && break;;
+3) FORMAT="mkfs.xfs" && break;;
+4) FORMAT="mkfs.ext4" && break;;
+*) continue ;;
+esac && done
+echo "> Creating partition at: $ROOTDIR" && $FORMAT $ROOTDIR && continue;;
+
+5) cfdisk && continue;;
+
+6) G && continue;;
+
+7) FDISK="Z" && continue;;
+
+esac
+done
+fi
+fi
+if [[ -z "$NULL" ]]; then #6th stage, 1st install stage, 28 Lines (L557=>L586)
 read -r -p "> What username would you like to have? : " NEWUSER
 read -r -p "> What password would you like to have for your new user? : " NEWPASS
-read -r -p "> What hostname would you like to have? : " H
+read -r -p "> What hostname would you like to have? : " HOSTNAME
 while true; do
-read -r -p "> Which bootloader would you like to use? '1' for grub (Universal), '0' for systemd (Default, GPT/EFI only)" V
-if [[ ${V:-0} == 0* ]]; then
-read -r -d '' P <<'EOF'
-echo "bootctl install" >> o.sh
+read -r -p "> Which bootloader would you like to use? '1' for grub (Universal), '0' for systemd (Default, GPT/EFI only)" R
+R=${R:-0}
+if [[ $R == 0* ]]; then
 while true; do
-read -r -p '> Do you want to be able to modify boot entries when bootup? '1' for yes (default (recomended for personal use)), '0' for no (more secure (recomended for mass use))' EW
-case $EW in
-0) RT="" && break;;
-*) RT="1" && break;;
-"") continue;;
-esac && done && break
+read -r -p "> Do you want to be able to modify boot entries when bootup? (y(d)/n) " R
+R=${R:-y}
+[[ "$R" == [Yy]* ]] && EDITABLE="1" || EDITABLE=""
+break
+done
+read -r -d '' BOOTLOADER <<'EOF'
+bootctl install
 EOF
-break && fi && done
-while true; do
-if [[ ${V:-0} == 0* && ! -z "$ESPDIR" ]]; then
+break
+elif [[ $R == 1* && ! -z "$ESPDIR" ]]; then
+read -r -d '' BOOTLOADER <<'EOF'
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB && grub-mkconfig -o /boot/grub/grub.cfg
+EOF
+BL="grub" && break
+elif [[ $R == 1* && -z $GPT && ! -z "$ESPDIR" ]]; then
 read -r -d '' P <<'EOF'
-P="grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB && grub-mkconfig -o /boot/grub/grub.cfg"
+grub-install --target=i386-pc $D && grub-mkconfig -o /boot/grub/grub.cfg
 EOF
-F="" && break
-else
-read -r -d '' P <<'EOF'
-P="grub-install --target=i386-pc $D && grub-mkconfig -o /boot/grub/grub.cfg"
-EOF
-F="grub" && break
-fi && done
-mkdir -p /mnt && mount $ROOTDIR /mnt && ROOT_PART=$(findmnt -n -o SOURCE /mnt) && ROOT_UUID=$(blkid -s UUID -o value $ROOT_PART)
-[[ ! -z "$ESPDIR" ]] && mkdir -p /mnt/boot && mount $ESPDIR /mnt/boot
-[[ ! -f "/mnt/swapfile" ]] && while true; do
-read -r -p "> Do you want to create a swapfile (Like a swap partition but is deleteable, simple and didnt need new partition)? (y/n)" LO
-case $LO in
-[Yy]*) read -r -d '' LO <<'EOF'
-dd if=/dev/zero of=/swapfile bs=1M count=8192 status=progress && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile && echo "/swapfile none swap defaults 0 0" >> /etc/fstab
-EOF
-break;;
-[nN]*) break;;
-"") continue;;
-esac && done && fi
-cp -r /minui /mnt/minui && cp -r /var/lib/iwd/ /mnt/var/lib/iwd/ && cp -r /etc/NetworkManager/system-connections/ /mnt/etc/NetworkManager/system-connections/ && cp -r /etc/vconsole.conf /mnt/etc/vconsole.conf && cp -r /etc/locale.conf /mnt/etc/locale.conf
-#5th Stage, 2nd Install Stage
-[[ ! "$V" == "1" ]] && echo "default minui.conf
+BL="grub" && break
+fi && done &&
+fi
+if [[ -z "$NULL" ]]; then #7th stage, 2nd install stage, 12 Lines (L587=>L599)
+mkdir -p /mnt && mount "$ROOTDIR" /mnt && ROOT_PART=$(findmnt -n -o SOURCE /mnt) && ROOT_UUID=$(blkid -s UUID -o value $ROOT_PART) && [[ ! -z "$ESPDIR" ]] && mkdir -p /mnt/boot && mount "$ESPDIR" /mnt/boot && cp -r /minui /mnt/minui && cp -r /var/lib/iwd/ /mnt/var/lib/iwd/ && cp -r /etc/NetworkManager/system-connections/ /mnt/etc/NetworkManager/system-connections/ && cp -r /etc/vconsole.conf /mnt/etc/vconsole.conf && cp -r /etc/locale.conf /mnt/etc/locale.conf && [[ -z "$BL" ]] && echo "default minui.conf
 timeout 4
-console-mode max" > /mnt/boot/loader/loader.conf | echo "
+console-mode max" > /mnt/boot/loader/loader.conf && echo "
 title MinimalistUI
 linux /vmlinuz-linux-zen
 initrd /initramfs-linux-zen.img
-options nvme_load=YES nowatchdog root=UUID=$ROOT_UUID rw loglevel=3 swapfile=/swapfile" > /mnt/boot/loader/entries/minui.conf | echo "
+options nvme_load=YES nowatchdog root=UUID=$ROOT_UUID rw loglevel=3 swapfile=/swapfile" > /mnt/boot/loader/entries/minui.conf && echo "
 title MinimalistUI (CLI)
 linux /vmlinuz-linux-zen
 initrd /initramfs-linux-zen.img
-options nvme_load=YES nowatchdog root=UUID=$ROOT_UUID rw loglevel=3 swapfile=/swapfile systemd.unit=multi-user.target" > /mnt/boot/loader/entries/minuicli.conf
-[[ "$RT" == "" ]] && echo "editor no" >> /mnt/boot/loader/loader.conf || echo "editor yes" >> /mnt/boot/loader/loader.conf
+options nvme_load=YES nowatchdog root=UUID=$ROOT_UUID rw loglevel=3 swapfile=/swapfile systemd.unit=multi-user.target" > /mnt/boot/loader/entries/minuicli.conf && [[ "$EDITABLE" == "" ]] && echo "editor no" >> /mnt/boot/loader/loader.conf || echo "editor yes" >> /mnt/boot/loader/loader.conf
+fi
+if [[ -z "$NULL" ]]; then #8th stage, 3rd install stage, 72 Lines (L600=>L675)
 while true; do
-read -r -d '' X << 'EOF'
-[[ ! "$RI" == "5" ]] && pacman -S --no-confirm kate gparted lutris steam mangohud firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman network-manager-applet udisks2 gvfs kitty fastfetch cpufetch htop papirus-icon-theme flatpak mpd materia-gtk-theme mpv bash-completion kvantum labwc swaybg mako waybar fuzzel grim slurp wl-clipboard kanshi playerctl
-[[ "$RI" == "5" ]] && paccache -rk1 -c /minui/extrarepos/
+[[ -z "$OFFLINE" ]] && EXTRAPACMAN="pacstrap -K fzf bat zoxide neovim lf thefuck kate gparted lutris steam mangohud firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman network-manager-applet udisks2 gvfs kitty fastfetch cpufetch htop papirus-icon-theme flatpak mpd materia-gtk-theme mpv bash-completion kvantum labwc swaybg mako waybar fuzzel grim slurp wl-clipboard kanshi playerctl"
+[[ ! -z "$OFFLINE" ]] && EXTRAPACMAN="pacstrap -c fzf bat zoxide neovim lf thefuck kate gparted lutris steam mangohud firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman network-manager-applet udisks2 gvfs kitty fastfetch cpufetch htop papirus-icon-theme flatpak mpd materia-gtk-theme mpv bash-completion kvantum labwc swaybg mako waybar fuzzel grim slurp wl-clipboard kanshi playerctl"
+cat <<'EOF' > /mnt/extrapacman.sh
+#!/bin/bash
+source /v.sh
 mkdir -p /home/"$NEWUSER"/.config/gtk-3.0
 cat <<EOT > /home/"$NEWUSER"/.config/gtk-3.0/settings.ini
 [Settings]
@@ -599,27 +620,29 @@ chown -R "$NEWUSER":"$NEWUSER" "$KVANTUM_CONFIG_PATH"
 echo "export QT_QPA_PLATFORMTHEME=kvantum"
 sudo -u "$NEWUSER" tee -a /home/"$NEWUSER"/.profile > /dev/null"
 EOF
-read -r -d '' W << 'EOF'
-sudo -u "$NEWUSER" flatpak --noninteractive --user -y install sober zoom zapzap telegram
+chmod +x /mnt/extrapacman.sh
+cat <<'EOF' > /mnt/extraflatpak.sh
+#!/bin/bash
 EOF
+[[ -z "$OFFLINE" ]] && echo "sudo -u ''$NEWUSER' flatpak --noninteractive --user -y install sober zoom zapzap telegram" >> /mnt/extraflatpak.sh
+[[ ! -z "$OFFLINE" ]] && echo "flatpak install --sideload-repo=/minui/flatpak/ flathub org.vinegarhq.Sober us.zoom.Zoom com.rtosta.zapzap org.telegram.desktop" >> /mnt/extraflatpak.sh
+chmod +x /mnt/extraflatpak.sh
 read -r -p "> Would you like to install extra packages (you can go to https://github.com/xv7ranker/minimalistui to see every packages (including extras))?
 > '1' install all extra packages (Recomended, tho optional (Incl. Support for wayland)),
 > '2' install extra pacman packages (Incl. Support for wayland),
 > '3' install extra flatpak packages,
-> '4' see all exrta packages,
 > '0' do not install extra packages.
-> answer: " RB
-case $RB in
+> answer: " R
+case $R in
 1) break;;
-2) W="echo "> skipping installing extra flatpak packages."" && break;;
-3) X="echo "> skipping installing extra pacman packages."" && break;;
-4) echo "$X" && echo "$W" && continue;;
-0) X="echo "> skipping installing extra pacman packages."" && "echo "> skipping installing extra flatpak packages."" && break;;
+2) echo '> skipping installing extra flatpak packages.' && rm -rf /mnt/extraflatpak.sh && break;;
+3) EXTRAPACMAN="echo '> skipping installing extra pacman packages.'" && rm -rf /mnt/extrapacman.sh && break;;
+0) EXTRAPACMAN="echo '> skipping installing extra pacman packages.'" && echo '> skipping installing extra flatpak packages.' && rm -rf /mnt/extraflatpak.sh && rm -rf /mnt/extrapacman.sh && break;;
 *) continue ;;
 esac && done
 VENDORID=$(grep 'vendor_id' /proc/cpuinfo | head -n 1 | awk '{print $NF}')
-[[ "$VENDORID" == "GenuineIntel" ]] && C="intel-ucode" && echo "> CPU is Intel, installing $C"
-[[ "$VENDORID" == "AuthenticAMD" ]] && C="amd-ucode" && echo "> CPU is AMD, installing $C"
+[[ "$VENDORID" == "GenuineIntel" ]] && CPU="intel-ucode" && echo "> CPU is Intel, installing $CPU"
+[[ "$VENDORID" == "AuthenticAMD" ]] && CPU="amd-ucode" && echo "> CPU is AMD, installing $CPU"
 while true; do
 read -r -p "> Which GPU driver would you like to install?
 > '1' to install AMD GPU Driver (Modern (xf86-video-amdgpu)) + Vulkan (vulkan-radeon) + Mesa (Depend.),
@@ -632,30 +655,20 @@ read -r -p "> Which GPU driver would you like to install?
 > '7' to install ALL GPU Drivers (Incl. Mesa & Media Drivers) & CPU Microcodes (Overrides) (Commonly heavier).
 > answer: " R
 case $R in
-1) G="xf86-video-amdgpu vulkan-radeon" && break;;
-2) G="xf86-video-ati" && break;;
-3) G="xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver" && break;;
-4) G="nvidia-dkms nvidia-settings nvidia-utils linux-zen-headers" && break;;
-5) G="xf86-video-nouveau" && break;;
-6) G="xf86-video-vesa" && break;;
-7) G="xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon linux-zen-headers" && C="intel-ucode amd-ucode" && break;;
+1) GPU="xf86-video-amdgpu vulkan-radeon" && break;;
+2) GPU="xf86-video-ati" && break;;
+3) GPU="xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver" && break;;
+4) GPU="nvidia-dkms nvidia-settings nvidia-utils linux-zen-headers" && break;;
+5) GPU="xf86-video-nouveau" && break;;
+6) GPU="xf86-video-vesa" && break;;
+7) GPU="xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon linux-zen-headers" && CPU="intel-ucode amd-ucode" && break;;
 *) continue;;
-esac && done && pacstrap -K /mnt base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs fzf bat zoxide lf thefuck ntfs-3g unzip p7zip unrar gufw ufw neovim squashfs-tools sudo git $G $C $F && genfstab -U /mnt >> /mnt/etc/fstab && L && arch-chroot /mnt <<EOF
+esac && done
+[[ -z "$OFFLINE" ]] && pacstrap -K /mnt base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs ntfs-3g unzip p7zip unrar gufw ufw squashfs-tools sudo git pasystray thunar pipewire-alsa pipewire-pulse pipewire-jack pipewire ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji firefox pavucontrol firefox-i18n-en-us xorg-xinit tint2 nwg-look rofi dunst feh $GPU $CPU $BL && eval "$EXTRAPACMAN" && genfstab -U /mnt >> /mnt/etc/fstab && H && arch-chroot /mnt <<EOF
 sh o.sh && rm -rf o.sh
 EOF
-if [[ "$RI" == "5" ]]; then
-mkdir -p /mnt/var/lib/pacman/sync && cp /var/lib/pacman/sync/ /mnt/var/lib/pacman/sync/
-cat <<EOF >> /etc/pacman.conf
-[local]
-SigLevel = Optional TrustAll
-Server = file:///minui/extrarepos
-EOF
-pacstrap -c /mnt base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs fzf bat zoxide lf thefuck ntfs-3g unzip p7zip unrar gufw ufw neovim squashfs-tools sudo git pasystray thunar pipewire-alsa pipewire-pulse pipewire-jack pipewire ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji firefox pavucontrol firefox-i18n-en-us xorg-xinit tint2 nwg-look rofi dunst feh $G $C $F
-eval "$X" && genfstab -u /mnt >> /mnt/etc/fstab && L && arch-chroot /mnt <<EOF
+[[ ! -z "$OFFLINE" ]] && pacstrap -c /mnt base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs ntfs-3g unzip p7zip unrar gufw ufw squashfs-tools sudo git pasystray thunar pipewire-alsa pipewire-pulse pipewire-jack pipewire ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji firefox pavucontrol firefox-i18n-en-us xorg-xinit tint2 nwg-look rofi dunst feh $GPU $CPU $BL && eval "$EXTRAPACMAN" && genfstab -U /mnt >> /mnt/etc/fstab && H && arch-chroot /mnt <<EOF
 sh o.sh && rm -rf o.sh
 EOF
 fi
-while true; do
-echo "!!!!! MinimalistUI finished installing, enter '1' to exit," && read -r -p "!!!!! Make sure to unplug the installation media too after this." R
-[[ "$R" =~ ^[1]$ ]] && umount -R /mnt && exit && break || continue
-fi && done && reboot
+fi
