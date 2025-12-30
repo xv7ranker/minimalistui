@@ -25,6 +25,7 @@ C.) Legend (For release tags):
 
 
 D.) How to install MinimalistUI (using .iso from https://github.com/xv7ranker/minimalistui/releases/new):
+
 1.A.) for linux users, run this command (and modify variables based on the command):
 sudo dd if=/path/to/minimalistui.iso of=/dev/sdX bs=4M status=progress (for sata devices, change X to coresponding device letter (use lsblk to easily identify)
     OR
