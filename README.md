@@ -59,6 +59,6 @@ E.) Credits to:
 - GEEKrar (For youtube rufus tutorial (https://www.youtube.com/@Geekrar).
 
 F.) Common Devlog:
-301225: The "X" (eXperimental) Release tag is removed...
+301225: The "X" (eXperimental) Release tag is removed. Extreme minimalistui.sh overhaul &/ rewriting is finished, revolving around bug fixing and additional support for offline installs (may not be available on early versions).
 291225: modification to the MinimalistUI to be lighter (now not based on XFCE4, but is an indepentent UI by itself), and experiments to include offline support for the .iso is OTW.
 --- every devlog(s) before / after this may be spotted in releases as release devlog ---
