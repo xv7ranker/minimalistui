@@ -1,5 +1,5 @@
 # MinimalistUI
-based on Arch, inspired by EndeavourOS, XFCE4, and archinstall command. MinimalistUI is a simplist, lightweight Dark-Themed UI Project Under WIP. MinimalistUI too, is available as a .iso to simplify the installation of MinimalistUI. Even tho earlier prototypes are based on XFCE4, MinimalistUI is NOW an independent UI Project, Supporting Both X11 And Wayland Display Server (Tho extra packages maybe needed to have wayland support).
+MinimalistUI is a simplist, lightweight Dark-Themed independent UI Project, Supporting Both X11 And Wayland Display Server (Tho extra packages maybe needed to have wayland support). This project IS still Under WIP. Inspired by XFCE4. MinimalistUI too, is available in a .iso format to simplify the installation of MinimalistUI, which is based on Arch Linux, and inspired by EndeavourOS, archinstall command, and Arch Linux itself.
 
 A.) POSSIBLE installable packages:
 - base packages: (pacstrap: base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva mesa-vdpau libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs ntfs-3g unzip p7zip unrar gufw ufw squashfs-tools sudo git intel-ucode amd-ucode xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon)
@@ -60,5 +60,5 @@ E.) Credits to:
 
 F.) Common Devlog:
 301225: The "X" (eXperimental) Release tag is removed...
-291225: modifying MinimalistUI to be lighter (now not based on XFCE4, but is an indepentent UI by itself), and experiments to include offline support for the .iso.
+291225: modification to the MinimalistUI to be lighter (now not based on XFCE4, but is an indepentent UI by itself), and experiments to include offline support for the .iso is OTW.
 --- every devlog(s) before / after this may be spotted in releases as release devlog ---
