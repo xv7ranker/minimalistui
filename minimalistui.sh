@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ -z "$NULL" ]]; then #0.5th->8th Stage, The Whole MinimalistUI.sh script, 677 Lines Total, ~25,7 KiB (26.311 bytes)
+if [[ -z "$NULL" ]]; then #0.5th->8th Stage, The Whole MinimalistUI.sh script, 677 Lines Total, ~25,9 KiB
 if [[ -z "$NULL" ]]; then #0.5th Stage, Functions (Used functions: A->H), 283 Lines, (L3=>L286)
 A() { #A function for Temporary leave
 while true; do
