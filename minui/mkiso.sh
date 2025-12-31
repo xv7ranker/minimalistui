@@ -1,141 +1,77 @@
 #!/bin/bash
+if [[ -z "$NULL" ]]; then #o.5th=>1st stage, The Whole mkiso.sh Script, 136 Lines Total, ~5.9 KiB
+if [[ -z "$NULL" ]]; then #0.5th stage, Functions & Variables, (Used Functions: A&B, Used Variables: A=>M), 108 Lines (L3=>L111)
 A=""
-B=""
-H="" #L
-J=""
-M=""
-O=""
-R=""
-S=""
-D="/"
-E="5"
-N="1"
-T=$(pwd)
-P=$(whoami)
-U=$(basename "$T")
-Q=$(cat /etc/hostname)
-F=$(find . -maxdepth 1 -type f -name "*.iso" | head -n 1)
-K=$(basename "$F")
-L=""$A"/mnt/sfs0"
-X=""$A"/mnt/iso0"
-Z=""$A"/mnt/iso1"
-C=""$L"/minimalistui/minimalistui.sh"
-G=""$L"/minui"
-W=""$L"/minimalistui"
-S=""$Z"/arch/x86_64/airootfs.sfs"
-while true; do
-if [[ $EUID -ne 0 ]]; then #1st stage, sudo
-    echo "!!! ERROR: Must run with sudo."
-    read -r -p "!!! Rerun with sudo? (y/n): " R
-    case $R in
-    [yY]) exec sudo "$0" "$@" ;;
-    "") continue ;;
-    *) echo "!!! Exiting."
-       exit 1 ;;
-    esac
-else
-    break
-fi
-done
-echo "> Shell Script (.sh) to automate minui.iso creation."
-echo "> Run this script in the same directory as arch.iso that wanted to be modified to minui.iso."
-umount "$X" > /dev/null 2>&1
-rm -rf "$X"
-rm -rf "$Z"
-rm -rf "$L"
-rm -rf "$G"
-rm -rf "$W"
-mkdir -p "$X"
-mkdir -p "$Z"
-mkdir -p "$L"
-echo "> Needed free space of atleast 5GB in '"$D"'."
-is_fs_larger_than_gib() {
-    local H="$1"
-    local Y="$2"
-    local free_size=$(df -BG --output=avail "$H" | tail -n 1 | sed 's/G//')
-    if [[ "$free_size" -ge "$Y" ]]; then
-        return 0
-    else
-        return 1
-    fi
-}
-check_fs_supports_unix_features() {
-    local H="$1"
-    local PA=$(findmnt -n -o FSTYPE -T "$H")
-    case "$PA" in
-        ext*|btrfs|xfs|zfs|f2fs)
-            return 0
-            ;;
-        vfat|exfat|ntfs|fuse|fuseblk)
-            return 1
-            ;;
-        *)
-            return 1
-            ;;
-    esac
-}
-while true; do
-    if is_fs_larger_than_gib "$D" "$E"; then
-        echo "> Free space in '"$D"' is enough, continuing."
-        cd "/"
-        break
-    else
-        rm -rf "$X"
-        rm -rf "$Z"
-        rm -rf "$L"
-        A="$T"
-        echo "!!! ERROR: Free disk space on $D is <${E}GiB. Will check '"$A"' (current running dir.)."
-        D="$A"
-        if ! [[ "$D" == "/" ]]; then
-            L="$A/mnt/sfs0"
-            X="$A/mnt/iso0"
-            Z="$A/mnt/iso1"
-            mkdir -p "$X"
-            mkdir -p "$Z"
-            mkdir -p "$L"
-            continue
-        elif [[ "$D" == "$(pwd)" ]]; then
-            echo "!!! ERROR: Free disk space on $D is <${E}GiB. Exiting (because '/' and '$A' is <${E}GiB)."
-            exit 1
-            break
+B="/"
+C=$(find . -maxdepth 1 -type f -name "*.iso" | head -n 1)
+D=$(basename "$C")
+E=$(pwd)
+F=""$A"/dev/shm/sfs0/"
+G=""$A"/run/iso0/"
+H=""$A"/dev/shm/iso1/"
+I=""$H"/minimalistui/"
+J=""$I"/minui/"
+K=""$H"/arch/x86_64/airootfs.sfs"
+
+A() { #A Function To Check If TMPFS is Usable/Not
+local Z="$1"
+Z=${Z:-/dev/shm}
+local Y="$2"
+local X=$(df -BG --output=avail "$A" | tail -n 1 | sed 's/G//')
+if [[ "$X" -ge "3.8" ]]; then
+    return 0
+    if [[ ! -z "$Y" ]]; then
+        local W=$(findmnt -n -o FSTYPE -T "$Y")
+        case "$W" in
+        ext*|btrfs|xfs|zfs|f2fs)local V="";;
+        vfat|exfat|ntfs|fuse|fuseblk)local V="1";;
+        *)local V="1";;
+        esac
+        if [[ -z "$V" ]]; then
+            B() { #B Function To Set rsync Command Based On FS Support
+            local A=$1
+            local B=$2
+            rsync -aH "$A" "$B" > /dev/null 2>&1
+            }
+        else
+            B() { #B Function To Set rsync Command Based On FS Support (Alt. Method)
+            local A=$1
+            local B=$2
+            rsync rsync -rv --no-owner --no-group --no-perms --no-times --no-xattrs "$A" "$B" > /dev/null 2>&1
+            }
         fi
+        export -f B
     fi
-done
-while true; do
-    read -r -p "> What would you want your bootable .iso version be?: " V #2nd stage, reads
-    read -r -p "> What would you want your bootable .iso output file name be? (don't add file extension (.iso)): " Y
-    echo "> Script is running in the background, please wait."
-    mount "$T"/"$K" "$X" > /dev/null 2>&1
-    if check_fs_supports_unix_features "$D"; then
-        rsync -aH --progress "$X"/ "$Z" > /dev/null 2>&1
-    else
-        rsync -rv --no-owner --no-group --no-perms --no-times --no-xattrs --progress "$X"/ "$Z" > /dev/null 2>&1
-    fi
-    cd "$Z"
-    unsquashfs -f -d "$L" "$S"> /dev/null 2>&1
-    rm -rf "$G"
-    rm -rf "$W"
-    mkdir -p "$G"
-    mkdir -p "$W"
-    git clone https://github.com/xv7ranker/minimalistui-extras "$G" > /dev/null 2>&1
-    git clone https://github.com/xv7ranker/minimalistui "$W" > /dev/null 2>&1
-    rm -rf ""$W"/.git"
-    rm -rf ""$W"/README.md"
-    rm -rf ""$W"/LICENSE"
-    rm -rf ""$W"/devlog.txt"
-    rm -rf ""$G"/.git"
-    rm -rf ""$G"/README.md"
-    rm -rf ""$G"/LICENSE"
-    $M
-    chmod +x ""$G"/x.sh"
-    chmod +x ""$G"/c.sh"
-    chmod +x "$C"
-    mv "$C" ""$L"/usr/bin/minimalistui.sh"
-    chmod +x "$G"/mkisosfs.sh
-    chmod +x "$G"/mkiso.sh
-    rm -rf "$W"
-    rm -rf "$L"/etc/pacman.conf
-cat <<'EOF' > "$L"/etc/pacman.conf
+elif [[ ! "$A" == "$B" ]]; then
+    exec sudo "$0" "$@" && echo "> !!! ERROR: RAM Space is not enough, Checking '"$B"'" && A "$B"
+elif [[ "$A" == "$B" ]]; then
+    echo "!!! ERROR: RAM/Disk space is not enough. Exiting."
+fi
+}
+C() {
+SECONDS="0"
+local A=$1
+mount "$E"/"$D" "$G" > /dev/null 2>&1
+B "$G" "$H"
+rm -rf "$G"
+umount -l "$G" > /dev/null 2>&1
+cd "$H"
+unsquashfs -f -n -d "$F" "$K" > /dev/null 2>&1
+rm -rf "$I"
+mkdir -p "$I"
+git clone https://github.com/xv7ranker/minimalistui "$I" > /dev/null 2>&1
+rm -rf ""$I"/.git"
+rm -rf ""$I"/README.md"
+rm -rf ""$I"/LICENSE"
+rm -rf ""$I"/devlog.txt"
+chmod +x ""$J"/x.sh"
+chmod +x ""$J"/c.sh"
+chmod +x "$J"/mkisosfs.sh
+chmod +x "$J"/mkiso.sh
+chmod +x ""$I"/minimalistui.sh"
+mv ""$I"/minimalistui.sh" ""$H"/usr/bin/minimalistui.sh"
+rm -rf "$H"/etc/pacman.conf
+echo "
 [options]
 HoldPkg = pacman glibc
 Architecture = auto
@@ -144,36 +80,56 @@ ParallelDownloads = 5
 DownloadUser = alpm
 SigLevel = Required DatabaseOptional
 LocalFileSigLevel = Optional
-EOF
-    read -r -p "> Do you want to incl. Offline support for your .iso? (y(d)/n): " R
-    if [[ ${R:-y} == [nN]* ]]; then
-    echo "> Skipping offline support"
-    echo "> Script is running in the background, please wait."
-    else
-    echo "> Script is running in the background, please wait."
-    mkdir -p "$G"/repos/flatpak/
-    cd "$L"/var/cache/pacman/pkg/
+" > "$H"/etc/pacman.conf
+if [[ ! -z "$A" ]]; then
+    echo "> Adding Support For Offline Install."
+    echo "> Script Is Running In The Background, Please Wait."
+    mkdir -p "$J"/flatpak/
+    cd "$H"/var/cache/pacman/pkg/
     pacman -Syw --noconfirm --disable-sandbox --cachedir "$L"/var/cache/pacman/pkg/ base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs ntfs-3g unzip p7zip unrar gufw ufw squashfs-tools sudo git intel-ucode amd-ucode xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon pasystray thunar pipewire-alsa pipewire-pulse pipewire-jack pipewire ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji firefox pavucontrol firefox-i18n-en-us xorg-xinit tint2 nwg-look rofi dunst feh fzf bat zoxide neovim lf thefuck kate gparted lutris steam mangohud firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman network-manager-applet udisks2 gvfs kitty fastfetch cpufetch htop papirus-icon-theme flatpak mpd materia-gtk-theme mpv bash-completion kvantum labwc swaybg mako waybar fuzzel grim slurp wl-clipboard kanshi playerctl gst-plugin-pipewire > /dev/null 2>&1
     repo-add extrarepos.db.tar.gz *.pkg.tar.zst > /dev/null 2>&1
-    cd "$G"/repos/flatpak/
+    cd "$J"/flatpak/
     flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo > /dev/null 2>&1
     flatpak remote-modify flathub --collection-id=org.flathub.Stable > /dev/null 2>&1
     flatpak create-usb --allow-partial "$G"/repos/flatpak/ com.rtosta.zapzap org.telegram.desktop > /dev/null 2>&1
-    cd "$L"
-    fi
-    rm -rf "$S"
-    cd "$L"
-    mksquashfs "." "airootfs.sfs" -comp zstd -Xcompression-level 3 -b 1M -no-progress > /dev/null 2>&1
-    cp "airootfs.sfs" "$S"
-    sync
-    cd "$Z"
-    xorriso -as mkisofs -D -r -J -l -V "$V" -o "${Y}.iso" -p "kata" -publisher "xv7ranker" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/syslinux/isolinux.bin -c boot/syslinux/boot.cat -eltorito-alt-boot -e EFI/BOOT/BOOTx64.EFI -no-emul-boot -isohybrid-mbr  boot/syslinux/isohdpfx.bin "." > /dev/null 2>&1
-    cp "$Z"/"${Y}.iso" "$T"/"${Y}.iso" && sync -f "$T"/"${Y}.iso"
-    umount -l "$X" > /dev/null 2>&1
-    rm -rf "$X"
-    rm -rf "$Z"
-    rm -rf "$L"
-    echo "> Script finished. Exiting."
-    exit 0
-    break 1
-    done
+elif [[ -z "$A" ]]; then
+    echo "> Skipping Support For Offline Install."
+    echo "> Script Is Running In The Background, Please Wait."
+fi
+rm -rf "$K"
+cd "$H"
+mksquashfs "." "airootfs.sfs" -comp zstd -Xcompression-level 3 -b 1M -no-progress > /dev/null 2>&1
+B "airootfs.sfs" "$K"
+cd "$H"
+xorriso -as mkisofs -D -r -J -l -V "$M" -o "minui-$M.iso" -p "kata" -publisher "xv7ranker" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/syslinux/isolinux.bin -c boot/syslinux/boot.cat -eltorito-alt-boot -e EFI/BOOT/BOOTx64.EFI -no-emul-boot -isohybrid-mbr  boot/syslinux/isohdpfx.bin "." > /dev/null 2>&1
+B ""$H"/"minui-$M.iso"" ""$E"/"minui-$M.iso""
+rm -rf "$H"
+echo "> Total .iso build time: $SECONDS"
+echo "> Script finished. Exiting."
+exit 0
+}
+fi
+if [[ -z "$NULL" ]]; then # 1st stage, Introduction, Sudo check, Filename, and Offline Support, 22 Lines (L112=>L134)
+echo "> Shell Script (.sh) to automate the creation of minimalistui.iso."
+echo "> Run this script in the same direcotry as the .iso that will be the base of your new, minimalistui .iso."
+echo "> Legend:
+> (d) default option,
+> (y/n(d)) yes/no with no as default value,
+> (y(d)/n) yes/no with yes as default value,
+> Naming Format: minui-VERSION.iso"
+while true; do
+if [[ $EUID -ne 0 ]]; then
+    read -r -p "!!! ERROR: Must Run With Sudo. Rerun With Sudo? (y(d)/n): " R
+    R=${R:-y}
+    [[ $R == [dD]* ]] && A 1
+    [[ $R == [yY]* ]] && exec sudo "$0" "$@" || echo "!!! Exiting." && exit 1
+else
+    break
+fi
+done
+read -r -p "> What Version Num. Would You Like To Give To Your New .iso?: " M
+read -r -p "> Do You Want To Add Offline Install Support For This .iso? (y/n(n)): " R
+export M
+[[ ${R:-n} == [yY]* ]] && C 1 || C
+fi
+fi
