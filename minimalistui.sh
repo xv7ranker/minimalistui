@@ -624,8 +624,8 @@ chmod +x /mnt/extrapacman.sh
 cat <<'EOF' > /mnt/extraflatpak.sh
 #!/bin/bash
 EOF
-[[ -z "$OFFLINE" ]] && echo "sudo -u ''$NEWUSER' flatpak --noninteractive --user -y install sober zoom zapzap telegram" >> /mnt/extraflatpak.sh
-[[ ! -z "$OFFLINE" ]] && echo "flatpak install --sideload-repo=/minui/flatpak/ flathub org.vinegarhq.Sober us.zoom.Zoom com.rtosta.zapzap org.telegram.desktop" >> /mnt/extraflatpak.sh
+[[ -z "$OFFLINE" ]] && echo "sudo -u ''$NEWUSER' flatpak --noninteractive --user -y install org.vinegarhq.Sober us.zoom.Zoom com.rtosta.zapzap org.telegram.desktop" >> /mnt/extraflatpak.sh
+[[ ! -z "$OFFLINE" ]] && echo "flatpak install --sideload-repo=/minui/flatpak/ flathub com.rtosta.zapzap org.telegram.desktop" >> /mnt/extraflatpak.sh
 chmod +x /mnt/extraflatpak.sh
 read -r -p "> Would you like to install extra packages (you can go to https://github.com/xv7ranker/minimalistui to see every packages (including extras))?
 > '1' install all extra packages (Recomended, tho optional (Incl. Support for wayland)),
