@@ -6,7 +6,7 @@ A.) POSSIBLE installable packages:
 
 - core MinimalistUI packages: (pacman: pasystray thunar pipewire-alsa pipewire-pulse pipewire-jack pipewire ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji firefox pavucontrol firefox-i18n-en-us xorg-xinit tint2 nwg-look rofi dunst feh)
 
-- extra installables: (pacman: fzf bat zoxide neovim lf thefuck kate gparted lutris steam mangohud firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman network-manager-applet udisks2 gvfs kitty fastfetch cpufetch htop papirus-icon-theme flatpak mpd materia-gtk-theme mpv bash-completion kvantum labwc swaybg mako waybar fuzzel grim slurp wl-clipboard kanshi playerctl) (flatpak: sober zoom zapzap telegram)
+- extra installables: (pacman: fzf bat zoxide neovim lf thefuck kate gparted lutris steam mangohud firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman network-manager-applet udisks2 gvfs kitty fastfetch cpufetch htop papirus-icon-theme flatpak mpd materia-gtk-theme mpv bash-completion kvantum labwc swaybg mako waybar fuzzel grim slurp wl-clipboard kanshi playerctl) (flatpak: org.vinegarhq.Sober (sober (not available for offline install)) us.zoom.Zoom (zoom (not available for offline install)) com.rtosta.zapzap (zapzap (whatsapp alternative)) org.telegram.desktop (telegram))
 
 B.) .iso Building tools:
 - mkiso.sh (to automate minimalistui.iso creations (modifyable if you want to)): https://github.com/xv7ranker/minimalistui-extras/blob/main/mkiso.sh
@@ -57,8 +57,3 @@ E.) Credits to:
 - Toms Hardware (For BIOS/UEFI key combo page (https://www.tomshardware.com/reviews/bios-keys-to-access-your-firmware,5732.html)),
 - Lifewire (For boot priority/boot order modification (https://www.lifewire.com/change-the-boot-order-in-bios-2624528)), and
 - GEEKrar (For youtube rufus tutorial (https://www.youtube.com/@Geekrar).
-
-F.) Common Devlog:
-301225: The "X" (eXperimental) Release tag is removed. Extreme minimalistui.sh overhaul &/ rewriting is finished, revolving around bug fixing and additional support for offline installs (may not be available on early versions).
-291225: modification to the MinimalistUI to be lighter (now not based on XFCE4, but is an indepentent UI by itself), and experiments to include offline support for the .iso is OTW.
---- every devlog(s) before / after this may be spotted in releases as release devlog ---
