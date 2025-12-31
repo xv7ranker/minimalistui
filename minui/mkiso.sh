@@ -129,7 +129,7 @@ fi
 done
 read -r -p "> What Version Num. Would You Like To Give To Your New .iso?: " M
 read -r -p "> Do You Want To Add Offline Install Support For This .iso? (y/n(n)): " R
-export M
+export M && export -f B
 [[ ${R:-n} == [yY]* ]] && C 1 || C
 fi
 fi
