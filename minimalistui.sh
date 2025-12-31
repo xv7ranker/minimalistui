@@ -49,6 +49,7 @@ else
     return 1
 fi
 elif [[ "$opt" == 1* ]]; then
+    if [[ -d /minui/flatpak/ ]]; then
     while true; do
     echo "> Time will be synchronized when conected to internet, setting timezone."
     read -r -p "> '1' to list timezones (default), and type the timezones to set the timezone (Area/Location (e.g. Asia/Jakarta)): " TIMEZONE
@@ -67,6 +68,10 @@ SigLevel = Optional TrustAll
 Server = file:///minui/repos/pacman
 EOF
     export OFFLINE="1"
+else
+    echo "!!! ERROR: Support for offline install is unavailable for this .iso version. Install one with offline support, or have internet access to continue."
+    return 1
+fi
 fi
 export A=""
 }
@@ -310,7 +315,7 @@ read -r -p "> Networking:
 > '1' use wifi,
 > '2' use ethernet,
 > '3' use wwan (WIP(???)),
-> '0' to skip networking (Installs offline version of everything in the script (likely outdated by a little bit)).
+> '0' to skip networking (Installs offline version of everything in the script).
 > answer: " NET
 if [[ "$?" == "0" ]]; then
     break
