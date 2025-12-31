@@ -1,0 +1,4 @@
+311225: New MinimalistUI.iso Version 311225 released, using newer minimalistui.sh, and newer configurations.
+301225: Addition for offline support is finished & entering testing stage. Rewriting of minimalistui.sh.
+291225: MinimalistUI is now an independent UI.
+--- Seperate, different devlog may be available for every new release tags ---
