@@ -4,6 +4,11 @@ if [[ $EUID -ne 0 ]]; then
     R=${R:-y}
     [[ $R == [yY]* ]] && exec sudo "$0" "$@" || echo "!!! Exiting." && exit 1
 fi
+mkdir -p /minui/
+mkdir -p /minui/backgrounds/
+mkdir -p /minui/bin/
+mkdir -p /minui/config/
+mkdir -p /usr/local/bin/minui/
 sh -c 'cat << "EOF" > /usr/minui/bin/cpu-maxperf
 #!/bin/bash
 if [[ $EUID -ne 0 ]]; then
@@ -299,6 +304,7 @@ H=""$A"/dev/shm/iso1/"
 I=""$H"/minimalistui/"
 J=""$I"/minui/"
 K=""$H"/arch/x86_64/airootfs.sfs"
+L=""$H"/do"
 
 A() { #A Function To Check If TMPFS is Usable/Not
 local Z="$1"
@@ -347,16 +353,20 @@ unsquashfs -f -n -d "$F" "$K" > /dev/null 2>&1
 rm -rf "$I"
 mkdir -p "$I"
 git clone https://github.com/xv7ranker/minimalistui "$I" > /dev/null 2>&1
+git clone https://github.com/xv7ranker/do "$L" > /dev/null 2>&1
 rm -rf ""$I"/.git"
 rm -rf ""$I"/README.md"
 rm -rf ""$I"/LICENSE"
 rm -rf ""$I"/devlog.txt"
-chmod +x ""$J"/x.sh"
-chmod +x ""$J"/c.sh"
-chmod +x "$J"/mkisosfs.sh
-chmod +x "$J"/mkiso.sh
+rm -rf ""$L"/.git"
+rm -rf ""$L"/README.md"
+rm -rf ""$L"/LICENSE"
 chmod +x ""$I"/minimalistui.sh"
-mv ""$I"/minimalistui.sh" ""$H"/usr/bin/minimalistui.sh"
+chmod +x ""$I"/x.sh"
+chmod +x ""$L"/do.sh"
+mv ""$I"/minimalistui.sh" ""$H"/etc/profile.d/minimalistui.sh"
+mv ""$I"/x.sh" ""$F"/x.sh"
+mv ""$I"/do.sh" ""$F"/do.sh"
 rm -rf "$H"/etc/pacman.conf
 echo "
 [options]
@@ -372,13 +382,13 @@ if [[ ! -z "$A" ]]; then
     echo "> Adding Support For Offline Install."
     echo "> Script Is Running In The Background, Please Wait."
     mkdir -p "$J"/flatpak/
-    cd "$H"/var/cache/pacman/pkg/
-    pacman -Syw --noconfirm --disable-sandbox --cachedir "$L"/var/cache/pacman/pkg/ base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs ntfs-3g unzip p7zip unrar gufw ufw squashfs-tools sudo git intel-ucode amd-ucode xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon pasystray thunar pipewire-alsa pipewire-pulse pipewire-jack pipewire ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji firefox pavucontrol firefox-i18n-en-us xorg-xinit tint2 nwg-look rofi dunst feh fzf bat zoxide neovim lf thefuck kate gparted lutris steam mangohud firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman network-manager-applet udisks2 gvfs kitty fastfetch cpufetch htop papirus-icon-theme flatpak mpd materia-gtk-theme mpv bash-completion kvantum labwc swaybg mako waybar fuzzel grim slurp wl-clipboard kanshi playerctl gst-plugin-pipewire > /dev/null 2>&1
+    cd "$F"/var/cache/pacman/pkg/
+    pacman -Syw --noconfirm --disable-sandbox --cachedir "$F"/var/cache/pacman/pkg/ base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs ntfs-3g unzip p7zip unrar gufw ufw squashfs-tools sudo git intel-ucode amd-ucode xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon pasystray thunar pipewire-alsa pipewire-pulse pipewire-jack pipewire ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji firefox pavucontrol firefox-i18n-en-us xorg-xinit tint2 nwg-look rofi dunst feh fzf bat zoxide neovim lf thefuck kate gparted lutris steam mangohud firefox-i18n-id firefox-ublock-origin firefox-dark-reader firefox-decentraleyes firefox-tree-style-tab cdrtools xorriso thunar-archive-plugin thunar-media-tags-plugin thunar-vcs-plugin thunar-volman network-manager-applet udisks2 gvfs kitty fastfetch cpufetch htop papirus-icon-theme flatpak mpd materia-gtk-theme mpv bash-completion kvantum labwc swaybg mako waybar fuzzel grim slurp wl-clipboard kanshi playerctl gst-plugin-pipewire > /dev/null 2>&1
     repo-add extrarepos.db.tar.gz *.pkg.tar.zst > /dev/null 2>&1
     cd "$J"/flatpak/
     flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo > /dev/null 2>&1
     flatpak remote-modify flathub --collection-id=org.flathub.Stable > /dev/null 2>&1
-    flatpak create-usb --allow-partial "$G"/repos/flatpak/ com.rtosta.zapzap org.telegram.desktop > /dev/null 2>&1
+    flatpak create-usb --allow-partial "$J"/flatpak/ com.rtosta.zapzap org.telegram.desktop > /dev/null 2>&1
 elif [[ -z "$A" ]]; then
     echo "> Skipping Support For Offline Install."
     echo "> Script Is Running In The Background, Please Wait."
@@ -903,11 +913,6 @@ EOF
 # Ensure the new user owns these files
 chown "$TARGET_USER:$TARGET_USER" "$USER_HOME/.bash_profile" "$USER_HOME/.xinitrc"
 
-mkdir -p /minui/
-mkdir -p /minui/backgrounds/
-mkdir -p /minui/bin/
-mkdir -p /minui/config/
-mkdir -p /usr/local/bin/minui/
 [[ -z "$OFFLINE" ]] && ln -sf /minui/config/mpv.conf /home/"$NEWUSER"/.config/mpv/mpv.conf &&
 chown "$NEWUSER":"$NEWUSER" /home/"$NEWUSER"/.config/mpv/mpv.conf &&
 ln -sf /minui/config/labwc /home/"$NEWUSER"/.config/labwc/autostart &&
