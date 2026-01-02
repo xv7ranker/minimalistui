@@ -615,6 +615,7 @@ gtk-icon-theme-name=Papirus-Dark
 gtk-font-name=Noto Sans 10
 gtk-cursor-theme-name=Adwaita
 EOT
+echo 'export PATH="$PATH:/minui/bin"' >> /home/"$NEWUSER"/.bashrc
 echo "fastfetch" >> /home/"$NEWUSER"/.bashrc
 echo "cpufetch" >> /home/"$NEWUSER"/.bashrc
 chown -R $NEWUSER:$NEWUSER /home/$NEWUSER/.config
