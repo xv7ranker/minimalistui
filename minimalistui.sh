@@ -281,7 +281,7 @@ gtk-cursor-theme-name=Adwaita" > /home/$NEWUSER/.config/gtk-3.0/settings.ini
 eval "$BOOTLOADER" && echo "> Installing Packages."
 sh /extrapacman.sh
 sh /extraflatpak.sh
-sh c.sh
+sh x.sh
 rsync -aH /do.sh /etc/profile.d/do.sh
 rm -rf /flatpak
 rm -rf /v.sh
