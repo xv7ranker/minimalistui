@@ -278,10 +278,12 @@ gtk-theme-name=Adwaita-dark
 gtk-icon-theme-name=Adwaita
 gtk-font-name=Noto Sans 10
 gtk-cursor-theme-name=Adwaita" > /home/$NEWUSER/.config/gtk-3.0/settings.ini
-[ -d "/minui" ] && x && rm -rf /minui/flatpak
 eval "$BOOTLOADER" && echo "> Installing Packages."
 sh /extrapacman.sh
 sh /extraflatpak.sh
+sh c.sh
+rsync -aH /do.sh /etc/profile.d/do.sh
+rm -rf /flatpak
 rm -rf /v.sh
 EOF
 chmod +x /mnt/o.sh
@@ -631,7 +633,7 @@ cat <<'EOF' > /mnt/extraflatpak.sh
 #!/bin/bash
 EOF
 [[ -z "$OFFLINE" ]] && echo "sudo -u ''$NEWUSER' flatpak --noninteractive --user -y install org.vinegarhq.Sober us.zoom.Zoom com.rtosta.zapzap org.telegram.desktop" >> /mnt/extraflatpak.sh
-[[ ! -z "$OFFLINE" ]] && echo "flatpak install --sideload-repo=/minui/flatpak/ flathub com.rtosta.zapzap org.telegram.desktop" >> /mnt/extraflatpak.sh
+[[ ! -z "$OFFLINE" ]] && echo "flatpak install --sideload-repo=/flatpak/ flathub com.rtosta.zapzap org.telegram.desktop" >> /mnt/extraflatpak.sh
 chmod +x /mnt/extraflatpak.sh
 read -r -p "> Would you like to install extra packages (you can go to https://github.com/xv7ranker/minimalistui to see every packages (including extras))?
 > '1' install all extra packages (Recomended, tho optional (Incl. Support for wayland)),
@@ -670,10 +672,10 @@ case $R in
 7) GPU="xf86-video-vesa xf86-video-nouveau nvidia-dkms nvidia-settings nvidia-utils xf86-video-intel vulkan-intel intel-media-driver libva-intel-driver xf86-video-ati xf86-video-amdgpu vulkan-radeon linux-zen-headers" && CPU="intel-ucode amd-ucode" && break;;
 *) continue;;
 esac && done
-[[ -z "$OFFLINE" ]] && pacstrap -K /mnt base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs ntfs-3g unzip p7zip unrar gufw ufw squashfs-tools sudo git pasystray thunar pipewire-alsa pipewire-pulse pipewire-jack pipewire ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji firefox pavucontrol firefox-i18n-en-us xorg-xinit tint2 nwg-look rofi dunst feh gst-plugin-pipewire $GPU $CPU $BL && eval "$EXTRAPACMAN" && genfstab -U /mnt >> /mnt/etc/fstab && H && arch-chroot /mnt <<EOF
+[[ -z "$OFFLINE" ]] && rsync -aH /x.sh /mnt/x.sh && rsync -aH /do.sh /mnt/do.sh && pacstrap -K /mnt base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs ntfs-3g unzip p7zip unrar gufw ufw squashfs-tools sudo git pasystray thunar pipewire-alsa pipewire-pulse pipewire-jack pipewire ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji firefox pavucontrol firefox-i18n-en-us xorg-xinit tint2 nwg-look rofi dunst feh gst-plugin-pipewire $GPU $CPU $BL && eval "$EXTRAPACMAN" && genfstab -U /mnt >> /mnt/etc/fstab && H && arch-chroot /mnt <<EOF
 sh o.sh && rm -rf o.sh
 EOF
-[[ ! -z "$OFFLINE" ]] && pacstrap -c /mnt base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs ntfs-3g unzip p7zip unrar gufw ufw squashfs-tools sudo git pasystray thunar pipewire-alsa pipewire-pulse pipewire-jack pipewire ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji firefox pavucontrol firefox-i18n-en-us xorg-xinit tint2 nwg-look rofi dunst feh gst-plugin-pipewire $GPU $CPU $BL && eval "$EXTRAPACMAN" && genfstab -U /mnt >> /mnt/etc/fstab && H && arch-chroot /mnt <<EOF
+[[ ! -z "$OFFLINE" ]] && rsync -aH /x.sh /mnt/x.sh && rsync -aH /do.sh /mnt/do.sh && pacstrap -c /mnt base base-devel linux-zen linux-firmware efibootmgr networkmanager dhcpcd iwd xorg-server xorg-xinit polkit-gnome fontconfig mesa libva libva-mesa-driver f2fs-tools lvm2 mdadm xfsprogs e2fsprogs ntfs-3g unzip p7zip unrar gufw ufw squashfs-tools sudo git pasystray thunar pipewire-alsa pipewire-pulse pipewire-jack pipewire ttf-roboto noto-fonts noto-fonts-cjk noto-fonts-emoji firefox pavucontrol firefox-i18n-en-us xorg-xinit tint2 nwg-look rofi dunst feh gst-plugin-pipewire $GPU $CPU $BL && eval "$EXTRAPACMAN" && genfstab -U /mnt >> /mnt/etc/fstab && H && arch-chroot /mnt <<EOF
 sh o.sh && rm -rf o.sh
 EOF
 fi
