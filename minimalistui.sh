@@ -278,7 +278,7 @@ gtk-theme-name=Adwaita-dark
 gtk-icon-theme-name=Adwaita
 gtk-font-name=Noto Sans 10
 gtk-cursor-theme-name=Adwaita" > /home/$NEWUSER/.config/gtk-3.0/settings.ini
-[ -d "/minui" ] && sh /minui/x.sh && rm -rf /minui/flatpak
+[ -d "/minui" ] && x && rm -rf /minui/flatpak
 eval "$BOOTLOADER" && echo "> Installing Packages."
 sh /extrapacman.sh
 sh /extraflatpak.sh
