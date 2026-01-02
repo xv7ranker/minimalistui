@@ -42,7 +42,7 @@ To paste .iso into your install media,
 
 3.) Change the BIOS/UEFI boot priority/boot order to your new installation media (see https://www.lifewire.com/change-the-boot-order-in-bios-2624528 for more (BIOS/UEFI settings for each motherboard/laptop brand may vary)), then exit from bios.
 
-4.) after booting up into the Arch Installation TTY, execute command: sh minimalistui.sh
+4.) after booting up into the Arch Installation TTY, execute command: minimalistui
 Enter/answer options based on your taste, and continue until minimalistui.sh finished executing.
 
 5.) enter '1' to exit on the very last question to exit the installation and then Unplug Your Installation Media. Do Not Forget To Unplug Your Installation Media.
