@@ -11,8 +11,5 @@ A.) POSSIBLE installable packages:
 B.) Credits to:
 - Arch Linux Developer Team,
 - EndeavourOS-team,
-- Linus Torvalds,
-- All of the package providers,
-- Toms Hardware (For BIOS/UEFI key combo page (https://www.tomshardware.com/reviews/bios-keys-to-access-your-firmware,5732.html)),
-- Lifewire (For boot priority/boot order modification (https://www.lifewire.com/change-the-boot-order-in-bios-2624528)), and
-- GEEKrar (For youtube rufus tutorial (https://www.youtube.com/@Geekrar).
+- Linus Torvalds, and
+- All of the package providers.
