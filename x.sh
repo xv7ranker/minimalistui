@@ -9,7 +9,7 @@ mkdir -p /minui/backgrounds/
 mkdir -p /minui/bin/
 mkdir -p /minui/config/
 mkdir -p /usr/local/bin/minui/
-sh -c 'cat << "EOF" > /usr/minui/bin/cpu-maxperf
+sh -c 'cat << "EOF" > /minui/bin/cpu-maxperf
 #!/bin/bash
 if [[ $EUID -ne 0 ]]; then
     read -r -p "!!! ERROR: Must run with sudo. Rerun with sudo? (y(d)/n): " R
@@ -21,8 +21,8 @@ echo "performance" > $CPU
 done
 echo "10" > /proc/sys/vm/swappiness > /dev/null 2>&1
 EOF'
-chmod +x /usr/minui/bin/cpu-perf > /dev/null 2>&1
-sh -c 'cat << "EOF" > /usr/minui/bin/cpu-powersave
+chmod +x /minui/bin/cpu-perf > /dev/null 2>&1
+sh -c 'cat << "EOF" > /minui/bin/cpu-powersave
 #!/bin/bash
 if [[ $EUID -ne 0 ]]; then
     read -r -p "!!! ERROR: Must run with sudo. Rerun with sudo? (y(d)/n): " R
@@ -34,13 +34,14 @@ echo "powersave" > $CPU
 done
 echo "10" > /proc/sys/vm/swappiness > /dev/null 2>&1
 EOF'
-chmod +x /usr/minui/bin/cpu-pwrsv > /dev/null 2>&1
-sh -c 'cat << "EOF" > /usr/minui/bin/brght
+chmod +x /minui/bin/cpu-pwrsv > /dev/null 2>&1
+sh -c 'cat << "EOF" > /minui/bin/brght
 #!/bin/bash
 # Usage: brightness [1-100]
 A=1
 B=100
 C=$1
+C=${C//%/}
 if [[ $EUID -ne 0 ]]; then
     read -r -p "!!! ERROR: Must run with sudo. Rerun with sudo? (y(d)/n): " R
     R=${R:-y}
@@ -91,18 +92,19 @@ echo "Error: Failed to set brightness."
 echo "Install light or check path."
 exit 1
 EOF'
-chmod +x /usr/minui/bin/brght > /dev/null 2>&1
-sh -c 'cat << "EOF" > /usr/minui/bin/vol
+chmod +x /minui/bin/brght > /dev/null 2>&1
+sh -c 'cat << "EOF" > /minui/bin/vol
 #!/bin/bash
 # Usage: volume [0-150] | volume mute
 A=$1
+A=${A//%/}
 B=150
 C=$2
 if [ -z "$A" ]; then
     echo "Usage: vol [0-$B] or vol t"
     exit 1
 fi
-if command -v pactl &> /dev/null; then
+if command -v wpctl &> /dev/null; then
     ${A//%/} && A=${A}%
     # --- MUTE OPTION ---
     if [[ "$A" == [tT] && -z "$C" ]]; then
@@ -154,8 +156,8 @@ else
     fi
 fi
 EOF'
-chmod +x /usr/minui/bin/vol > /dev/null 2>&1
-sh -c 'cat << "EOF" > /usr/minui/bin/mpvw
+chmod +x /minui/bin/vol > /dev/null 2>&1
+sh -c 'cat << "EOF" > /minui/bin/mpvw
 #!/bin/bash
 A=$(find /home -maxdepth 1 -mindepth 1 -type d -not -name "lost+found" -printf "%f\n" | shuf -n 1)
 if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" -eq 1 ]; then
@@ -203,7 +205,7 @@ fi
 mpv --vo=$B "$@"
 exit 0
 EOF'
-chmod +x /usr/minui/bin/mpvw > /dev/null 2>&1
+chmod +x /minui/bin/mpvw > /dev/null 2>&1
 echo "To See Commands That Are Available In CLI Environtment, use command 'ls /usr/minui/bin'"
 sh -c 'cat <<"EOF" > /usr/bin/startminuix
 #!/bin/bash
@@ -286,6 +288,10 @@ DOCUMENTATION_URL="https://github.com/opranker/minimalistui/discussions"
 SUPPORT_URL="https://github.com/opranker/minimalistui/discussions"
 BUG_REPORT_URL="https://github.com/opranker/minimalistui/discussions"
 LOGO="arch"
+MAJREV="1"
+REV="1"
+SUBREV="1"
+NANOREV="1"
 EOF'
 chmod +x /usr/lib/os-release > /dev/null 2>&1
 ln -sf /usr/lib/os-release /minui/os-release
@@ -772,7 +778,7 @@ clock_dwheel_command =
 # Battery
 battery_tooltip = 1
 battery_low_status = 10
-battery_low_cmd = xmessage 'tint2: Battery low!'
+battery_low_cmd = xmessage "tint2: Battery low!"
 battery_full_cmd =
 bat1_font = Noto Sans 9
 bat2_font = Noto Sans 9
@@ -920,6 +926,7 @@ chown "$NEWUSER":"$NEWUSER" /home/"$NEWUSER"/.config/labwc/autostart &&
 ln -sf /minui/config/tint2.desktop /home/"$NEWUSER"/.config/autostart/tint2.desktop &&
 chown "$NEWUSER":"$NEWUSER" /home/"$NEWUSER"/.config/autostart/tint2.desktop &&
 ln -sf /minui/config/tint2rc
-cp wp.png /minui/backgrounds/wp.png
+echo 'KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0660"' > /etc/udev/rules.d/45-ddcutil.rules
+echo 'ACTION=="add", SUBSYSTEM=="backlight", RUN+="/bin/chgrp video /sys/class/backlight/%k/brightness", RUN+="/bin/chmod g+w /sys/class/backlight/%k/brightness"' > /etc/udev/rules.d/90-backlight.rules
 echo 'export PATH="$PATH:/minui/bin"' >> /home/"$NEWUSER"/.bashrc
 exit 0
